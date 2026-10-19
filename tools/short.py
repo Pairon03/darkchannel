@@ -75,7 +75,7 @@ PlayResY: 1920
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Cap,Oswald,108,&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,1,0,0,0,100,100,0,0,1,6,3,2,60,60,330,1
+Style: Cap,Oswald,124,&H00FFFFFF,&H00FFFFFF,&H00000000,&H96000000,1,0,0,0,100,100,0,0,1,6,3,2,60,60,330,1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
@@ -139,7 +139,7 @@ def main(slug, title):
             "borderw=6:bordercolor=black:x=(w-text_w)/2:y=150,"
             f"drawtext=fontfile={anton}:text='{esc(l2.strip())}':fontsize=96:fontcolor=white:"
             "box=1:boxcolor=0xC81616:boxborderw=18:x=(w-text_w)/2:y=275,"
-            f"drawtext=fontfile={cinzel}:text='SOMBRAS DA HISTÓRIA':fontsize=40:fontcolor=0xE9C46A:"
+            f"drawtext=fontfile={cinzel}:text='ECOS DA HISTÓRIA':fontsize=40:fontcolor=0xE9C46A:"
             "x=(w-text_w)/2:y=1740,"
             f"drawtext=fontfile={cinzel}:text='ASSISTA O VÍDEO COMPLETO NO CANAL':fontsize=32:fontcolor=white@0.85:"
             "x=(w-text_w)/2:y=1800,"

@@ -1,4 +1,4 @@
-# Criar o canal "Sombras da História": passo a passo
+# Criar o canal "Ecos da História": passo a passo
 
 Siga em ordem. Tudo o que precisa ser copiado está pronto nos blocos abaixo.
 
@@ -10,13 +10,13 @@ Siga em ordem. Tudo o que precisa ser copiado está pronto nos blocos abaixo.
 2. Foto de perfil → **Criar um canal**. Se pedir, escolha **"usar um nome personalizado"** (canal de marca).
 3. Nome do canal:
    ```
-   Sombras da História
+   Ecos da História
    ```
 4. Identificador (@). Tente nesta ordem até encontrar um livre:
    ```
-   @sombrasdahistoria
-   @sombrasdahistoriaoficial
-   @sombras.historia
+   @ecosdahistoria
+   @ecosdahistoriaoficial
+   @ecos.historia
    ```
 
 ## 2. Personalizar (YouTube Studio → Personalização)
@@ -29,7 +29,7 @@ Arquivo: **`canal/banner.jpg`** (2560×1440). O texto já está na área segura,
 
 ### Descrição do canal
 ```
-Sombras da História conta o lado da história que os livros esquecem.
+Ecos da História conta o lado da história que os livros esquecem.
 
 Roma Antiga, Grécia, Egito, Idade Média, impérios, guerras, mistérios e tragédias que mudaram o mundo, narrados como um documentário.
 

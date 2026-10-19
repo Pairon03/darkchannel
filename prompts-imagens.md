@@ -1,4 +1,4 @@
-# Prompts de imagem — Sombras da História
+# Prompts de imagem — Ecos da História
 
 Cole cada prompt na IA de imagem. Formato **16:9 (paisagem)**. Salve com o nome indicado (cena01.jpg, cena02.jpg...) e me mande na ordem.
 

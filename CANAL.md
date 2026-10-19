@@ -1,4 +1,4 @@
-# Sombras da História — Guia do Canal
+# Ecos da História — Guia do Canal
 
 **Slogan:** *A história que os livros esquecem.*
 
@@ -69,7 +69,7 @@ Ordem sugerida de publicação (comece pelos temas mais buscados):
 A descrição e as tags de cada vídeo estão no topo do roteiro (`roteiros/NN-tema.md`). Na descrição, acrescente:
 
 ```
-📜 Sombras da História — a história que os livros esquecem.
+📜 Ecos da História — a história que os livros esquecem.
 🔔 Inscreva-se e ative o sininho para novos episódios.
 Narração: voz gerada por IA (ElevenLabs). Imagens: ilustrações geradas por IA.
 ```

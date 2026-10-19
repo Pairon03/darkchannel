@@ -73,7 +73,7 @@ def main(slug):
 
     # Marca do canal no rodapé.
     fb = ImageFont.truetype(str(BRAND), 30)
-    d.text((x, H - 62), "SOMBRAS DA HISTÓRIA", font=fb, fill=GOLD)
+    d.text((x, H - 62), "ECOS DA HISTÓRIA", font=fb, fill=GOLD)
 
     out = ROOT / "thumbnails" / f"{slug}.jpg"
     out.parent.mkdir(exist_ok=True)

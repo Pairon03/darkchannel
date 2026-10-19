@@ -1,4 +1,4 @@
-# Pacote de upload — Sombras da História
+# Pacote de upload — Ecos da História
 
 Horário de publicação: **17h (horário de Brasília)**, segunda, quarta e sexta. Agende pelo YouTube Studio → Visibilidade → Programar.
 
@@ -32,7 +32,7 @@ O Lado Sombrio do Coliseu que Ninguém Te Contou
 ```
 Durante quase 500 anos, o Coliseu foi o maior palco de morte do mundo antigo. Mas a verdade sobre o que acontecia ali é muito diferente do que os filmes mostram. Neste vídeo: a construção, os gladiadores, o subterrâneo secreto e o destino da arena mais famosa da história.
 
-📜 Sombras da História — a história que os livros esquecem.
+📜 Ecos da História — a história que os livros esquecem.
 🔔 Inscreva-se e ative o sininho para não perder os próximos episódios.
 
 Narração: voz gerada por IA (ElevenLabs). Imagens: ilustrações geradas por IA para fins de reconstituição histórica.
@@ -65,7 +65,7 @@ Quem Realmente Construiu as Pirâmides do Egito?
 ```
 Por milhares de anos, a Grande Pirâmide foi a construção mais alta do mundo. Mas quem a construiu? Escravos, alienígenas ou algo muito mais surpreendente? As descobertas arqueológicas que mudaram tudo o que se sabia sobre as pirâmides.
 
-📜 Sombras da História — a história que os livros esquecem.
+📜 Ecos da História — a história que os livros esquecem.
 🔔 Inscreva-se e ative o sininho para não perder os próximos episódios.
 
 Narração: voz gerada por IA (ElevenLabs). Imagens: ilustrações geradas por IA para fins de reconstituição histórica.
@@ -96,7 +96,7 @@ pirâmides, egito antigo, gizé, quéops, faraós, mistérios, história, curios
 ```
 O filme transformou as Termópilas em lenda. Mas a batalha real, em 480 antes de Cristo, foi ainda mais impressionante e muito mais complexa. Quem eram os espartanos, quantos eram de verdade, e como um traidor mudou o destino da Grécia.
 
-📜 Sombras da História — a história que os livros esquecem.
+📜 Ecos da História — a história que os livros esquecem.
 🔔 Inscreva-se e ative o sininho para não perder os próximos episódios.
 
 Narração: voz gerada por IA (ElevenLabs). Imagens: ilustrações geradas por IA para fins de reconstituição histórica.
@@ -129,7 +129,7 @@ Cleópatra: A Última Rainha do Egito Não Era Quem Você Pensa
 ```
 Ela seduziu os dois homens mais poderosos de Roma, falava nove línguas e desafiou o maior império do mundo. Mas Cleópatra viveu mais perto da nossa época do que da construção das pirâmides, e nem era egípcia. A história real da última rainha do Egito.
 
-📜 Sombras da História — a história que os livros esquecem.
+📜 Ecos da História — a história que os livros esquecem.
 🔔 Inscreva-se e ative o sininho para não perder os próximos episódios.
 
 Narração: voz gerada por IA (ElevenLabs). Imagens: ilustrações geradas por IA para fins de reconstituição histórica.
@@ -160,7 +160,7 @@ As Últimas 24 Horas de Pompeia
 ```
 Em 79 depois de Cristo, uma cidade romana inteira foi congelada no tempo em questão de horas. O que os moradores de Pompeia viram, ouviram e sentiram no último dia de suas vidas? Uma viagem minuto a minuto pela tragédia do Vesúvio.
 
-📜 Sombras da História — a história que os livros esquecem.
+📜 Ecos da História — a história que os livros esquecem.
 🔔 Inscreva-se e ative o sininho para não perder os próximos episódios.
 
 Narração: voz gerada por IA (ElevenLabs). Imagens: ilustrações geradas por IA para fins de reconstituição histórica.
@@ -191,7 +191,7 @@ O Dia em que os Vikings Chegaram: Lindisfarne, 793
 ```
 Em junho de 793, monges em uma ilha da Inglaterra viram velas no horizonte. Era o começo da Era Viking. Quem eram de verdade esses guerreiros do norte, e por que quase tudo que você sabe sobre eles, incluindo os capacetes com chifres, é mentira.
 
-📜 Sombras da História — a história que os livros esquecem.
+📜 Ecos da História — a história que os livros esquecem.
 🔔 Inscreva-se e ative o sininho para não perder os próximos episódios.
 
 Narração: voz gerada por IA (ElevenLabs). Imagens: ilustrações geradas por IA para fins de reconstituição histórica.
@@ -224,7 +224,7 @@ Peste Negra: Quando Um Terço da Europa Morreu
 ```
 Em 1347, doze navios atracaram na Sicília. A bordo, a maioria dos marinheiros estava morta. O que eles trouxeram mataria dezenas de milhões de pessoas em poucos anos. A história da pandemia mais mortal da Idade Média, e de como ela mudou o mundo para sempre.
 
-📜 Sombras da História — a história que os livros esquecem.
+📜 Ecos da História — a história que os livros esquecem.
 🔔 Inscreva-se e ative o sininho para não perder os próximos episódios.
 
 Narração: voz gerada por IA (ElevenLabs). Imagens: ilustrações geradas por IA para fins de reconstituição histórica.
@@ -255,7 +255,7 @@ Quem Realmente Destruiu a Biblioteca de Alexandria?
 ```
 Ela teria guardado todo o conhecimento do mundo antigo. E então desapareceu. Mas a destruição da Biblioteca de Alexandria não foi um único incêndio, e o culpado não é quem você imagina. Neste vídeo, a história real por trás do maior mistério intelectual da humanidade.
 
-📜 Sombras da História — a história que os livros esquecem.
+📜 Ecos da História — a história que os livros esquecem.
 🔔 Inscreva-se e ative o sininho para não perder os próximos episódios.
 
 Narração: voz gerada por IA (ElevenLabs). Imagens: ilustrações geradas por IA para fins de reconstituição histórica.
@@ -286,7 +286,7 @@ Fogo Grego: A Arma Secreta que Ninguém Consegue Recriar
 ```
 Um fogo que queimava sobre a água e que não se apagava com ela. Por séculos, ele salvou Constantinopla de cercos que pareciam impossíveis de vencer. E então, a fórmula simplesmente desapareceu. A história da arma secreta mais misteriosa da Idade Média.
 
-📜 Sombras da História — a história que os livros esquecem.
+📜 Ecos da História — a história que os livros esquecem.
 🔔 Inscreva-se e ative o sininho para não perder os próximos episódios.
 
 Narração: voz gerada por IA (ElevenLabs). Imagens: ilustrações geradas por IA para fins de reconstituição histórica.
@@ -317,7 +317,7 @@ Sexta-Feira 13: O Dia em que os Templários Caíram
 ```
 Eles eram a ordem militar mais rica e poderosa da Idade Média. Até que, em uma única madrugada de outubro de 1307, o rei da França mandou prender todos eles. A história real da queda dos Cavaleiros Templários, e da maldição que teria nascido na fogueira.
 
-📜 Sombras da História — a história que os livros esquecem.
+📜 Ecos da História — a história que os livros esquecem.
 🔔 Inscreva-se e ative o sininho para não perder os próximos episódios.
 
 Narração: voz gerada por IA (ElevenLabs). Imagens: ilustrações geradas por IA para fins de reconstituição histórica.
