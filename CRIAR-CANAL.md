@@ -59,18 +59,20 @@ história, história do mundo, roma antiga, grécia antiga, egito antigo, idade 
 
 | # | Data | Vídeo | Arquivo | Thumbnail |
 |---|---|---|---|---|
-| 1 | **Qua 21/10** | O Lado Sombrio do Coliseu que Ninguém Te Contou | `videos/01-coliseu.mp4` | `thumbnails/01-coliseu.jpg` |
-| 2 | **Sex 23/10** | Quem Realmente Construiu as Pirâmides do Egito? | `videos/08-piramides.mp4` | `thumbnails/08-piramides.jpg` |
-| 3 | **Seg 26/10** | 300 Contra 1 Milhão? A Verdade Sobre as Termópilas | `videos/03-termopilas.mp4` | `thumbnails/03-termopilas.jpg` |
-| 4 | **Qua 28/10** | Cleópatra: A Última Rainha do Egito Não Era Quem Você Pensa | `videos/06-cleopatra.mp4` | `thumbnails/06-cleopatra.jpg` |
-| 5 | **Sex 30/10** | As Últimas 24 Horas de Pompeia | `videos/02-pompeia.mp4` | `thumbnails/02-pompeia.jpg` |
-| 6 | **Seg 02/11** (Finados) | Peste Negra: Quando Um Terço da Europa Morreu | `videos/05-peste-negra.mp4` | `thumbnails/05-peste-negra.jpg` |
-| 7 | **Qua 04/11** | O Dia em que os Vikings Chegaram: Lindisfarne, 793 | `videos/07-vikings.mp4` | `thumbnails/07-vikings.jpg` |
-| 8 | **Sex 06/11** | Quem Realmente Destruiu a Biblioteca de Alexandria? | `videos/04-alexandria.mp4` | `thumbnails/04-alexandria.jpg` |
-| 9 | **Seg 09/11** | Fogo Grego: A Arma Secreta que Ninguém Consegue Recriar | `videos/10-fogo-grego.mp4` | `thumbnails/10-fogo-grego.jpg` |
+| 1 | **Seg 19/10** (hoje) | O Lado Sombrio do Coliseu que Ninguém Te Contou | `videos/01-coliseu.mp4` | `thumbnails/01-coliseu.jpg` |
+| 2 | **Qua 21/10** | Quem Realmente Construiu as Pirâmides do Egito? | `videos/08-piramides.mp4` | `thumbnails/08-piramides.jpg` |
+| 3 | **Sex 23/10** | 300 Contra 1 Milhão? A Verdade Sobre as Termópilas | `videos/03-termopilas.mp4` | `thumbnails/03-termopilas.jpg` |
+| 4 | **Seg 26/10** | Cleópatra: A Última Rainha do Egito Não Era Quem Você Pensa | `videos/06-cleopatra.mp4` | `thumbnails/06-cleopatra.jpg` |
+| 5 | **Qua 28/10** | As Últimas 24 Horas de Pompeia | `videos/02-pompeia.mp4` | `thumbnails/02-pompeia.jpg` |
+| 6 | **Sex 30/10** | O Dia em que os Vikings Chegaram: Lindisfarne, 793 | `videos/07-vikings.mp4` | `thumbnails/07-vikings.jpg` |
+| 7 | **Seg 02/11** (Finados) | Peste Negra: Quando Um Terço da Europa Morreu | `videos/05-peste-negra.mp4` | `thumbnails/05-peste-negra.jpg` |
+| 8 | **Qua 04/11** | Quem Realmente Destruiu a Biblioteca de Alexandria? | `videos/04-alexandria.mp4` | `thumbnails/04-alexandria.jpg` |
+| 9 | **Sex 06/11** | Fogo Grego: A Arma Secreta que Ninguém Consegue Recriar | `videos/10-fogo-grego.mp4` | `thumbnails/10-fogo-grego.jpg` |
 | 10 | **Sex 13/11** (sexta-feira 13!) | Sexta-Feira 13: O Dia em que os Templários Caíram | `videos/09-templarios.mp4` | `thumbnails/09-templarios.jpg` |
 
-⚠️ O lote acaba em 13/11. Para manter a frequência, o lote 2 precisa estar pronto até lá.
+Seg 09/11 e Qua 11/11 ficam livres para os primeiros vídeos do lote 2.
+
+⚠️ Para não deixar buracos, o lote 2 precisa estar pronto até 09/11.
 
 ---
 
@@ -120,7 +122,7 @@ Os 10 vídeos estão no arquivo **`UPLOAD.md`**, na ordem do calendário e em bl
 ## 8. Depois de publicar
 
 - **Responda aos comentários** nas primeiras 2 horas. Isso ajuda muito o algoritmo.
-- **Fixe um comentário** em cada vídeo com uma pergunta (ex.: *"Qual civilização você quer ver no próximo vídeo?"*).
+- **Fixe o comentário** de cada vídeo (texto pronto no `UPLOAD.md`).
 - **Shorts:** recorte os 40 segundos iniciais de cada vídeo (o gancho) em formato vertical. Isso traz público novo para os vídeos longos.
 - **Monetização:** exige 1.000 inscritos e 4.000 h de exibição em 12 meses. Mantenha os roteiros originais para não cair na regra de "conteúdo repetitivo".
 - Depois de 2 semanas, veja em **Analytics** qual tema e qual thumbnail tiveram a maior taxa de cliques (CTR) e use isso para escolher os temas do lote 2.
