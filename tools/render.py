@@ -5,7 +5,8 @@ Uso: python3 tools/render.py 01-coliseu
 
 Espera:
   roteiros/<slug>.md        roteiro com blocos "## CENA N"
-  imagens/<NN>/cenaNN.jpg   uma imagem por cena
+  imagens/<NN>/cenaNN.jpg   imagem principal da cena; cenaNNb.jpg, cenaNNc.jpg... (opcionais)
+                            entram em sequência e dividem o tempo da cena
   audio/<slug>.mp3          narração completa
   assets/ambiente.mp3       (opcional) trilha de fundo em loop
 Gera:
@@ -19,7 +20,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 W, H, FPS = 1920, 1080, 30
-FADE = 1.0  # segundos de transição entre cenas
+FADE = 0.8  # segundos de transição entre imagens
 
 
 def parse_scenes(md):
@@ -67,16 +68,24 @@ def main(slug):
     scenes = parse_scenes(md)
     audio = ROOT / "audio" / f"{slug}.mp3"
     total = duration(audio) + 1.5  # respiro no final
-    imgs = [ROOT / "imagens" / num / f"cena{i + 1:02d}.jpg" for i in range(len(scenes))]
-    missing = [str(p) for p in imgs if not p.exists()]
+    folder = ROOT / "imagens" / num
+    missing = [f"cena{i + 1:02d}.jpg" for i in range(len(scenes))
+               if not (folder / f"cena{i + 1:02d}.jpg").exists()]
     if missing:
         sys.exit(f"faltando imagens: {missing}")
 
-    # Tempo de cada cena proporcional ao tamanho do texto narrado nela.
+    # Tempo de cada cena proporcional ao tamanho do texto narrado nela,
+    # dividido igualmente entre as imagens da cena.
     chars = [len(s) for s in scenes]
+    per_scene = [sorted(folder.glob(f"cena{i + 1:02d}*.jpg")) for i in range(len(scenes))]
+    n_shots = sum(len(p) for p in per_scene)
     # Cada transição "come" FADE segundos, então somamos isso de volta.
-    span = total + FADE * (len(scenes) - 1)
-    durs = [span * c / sum(chars) for c in chars]
+    span = total + FADE * (n_shots - 1)
+    imgs, durs = [], []
+    for paths, c in zip(per_scene, chars):
+        for p in paths:
+            imgs.append(p)
+            durs.append(span * c / sum(chars) / len(paths))
 
     out = ROOT / "videos" / f"{slug}.mp4"
     out.parent.mkdir(exist_ok=True)
@@ -86,7 +95,8 @@ def main(slug):
             n = int(round(d * FPS))
             clip = Path(tmp) / f"c{i:02d}.mp4"
             vf = (
-                f"scale=2880:1620:force_original_aspect_ratio=increase,crop=2880:1620,"
+                # corta 4% das bordas: algumas imagens vêm com moldura ou faixa preta
+                f"crop=iw*0.92:ih*0.92,scale=2880:1620:force_original_aspect_ratio=increase,crop=2880:1620,"
                 f"{ken_burns(i, n)},"
                 # gradação escura: menos saturação, contraste, vinheta e granulação
                 "eq=contrast=1.05:saturation=0.9:gamma=1.08,"
@@ -95,7 +105,7 @@ def main(slug):
             run(["ffmpeg", "-y", "-loop", "1", "-i", str(img), "-vf", vf, "-frames:v", str(n),
                  "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", str(clip)])
             clips.append((clip, n / FPS))
-            print(f"cena {i + 1}/{len(imgs)} ok ({n / FPS:.1f}s)", flush=True)
+            print(f"imagem {i + 1}/{len(imgs)} ok ({n / FPS:.1f}s)", flush=True)
 
         # Encadeia as cenas com crossfade.
         inputs, chain, offset, last = [], [], 0.0, "0:v"
@@ -111,7 +121,7 @@ def main(slug):
         a_inputs, a_chain = audio_mix(audio, len(clips), total)
         run(["ffmpeg", "-y", *inputs, *a_inputs, "-filter_complex", ";".join(chain + [a_chain]),
              "-map", "[vout]", "-map", "[aout]", "-t", f"{total:.3f}",
-             "-c:v", "libx264", "-preset", "faster", "-crf", "22", "-r", str(FPS),
+             "-c:v", "libx264", "-preset", "faster", "-crf", "24", "-r", str(FPS),
              "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", str(out)])
     print(f"pronto: {out}")
 
@@ -122,15 +132,20 @@ def audio_mix(audio, n_in, total):
     n_in é o índice do primeiro input de áudio no comando do ffmpeg.
     """
     inputs = ["-i", str(audio)]
-    nar = f"[{n_in}:a]adelay=500|500,pan=stereo|c0=c0|c1=c0[nar]"
+    nar = f"[{n_in}:a]adelay=500|500,pan=stereo|c0=c0|c1=c0,asplit=2[nar][key]"
     master = "loudnorm=I=-14:TP=-1.5:LRA=11,aformat=sample_rates=48000:channel_layouts=stereo[aout]"
-    amb = ROOT / "assets" / "ambiente.mp3"
-    if not amb.exists():
-        return inputs, f"{nar};[nar]{master}"
-    inputs += ["-stream_loop", "-1", "-i", str(amb)]
+    # Trilha musical (tools/musica.py); se não existir, usa o drone ambiente antigo.
+    bg = ROOT / "assets" / "musica.mp3"
+    if not bg.exists():
+        bg = ROOT / "assets" / "ambiente.mp3"
+    if not bg.exists():
+        return inputs, f"[{n_in}:a]adelay=500|500,pan=stereo|c0=c0|c1=c0,{master}"
+    inputs += ["-stream_loop", "-1", "-i", str(bg)]
     return inputs, (
-        f"{nar};[{n_in + 1}:a]volume=0.35,afade=t=out:st={total - 3:.3f}:d=3[bg];"
-        f"[nar][bg]amix=inputs=2:duration=first:normalize=0,{master}"
+        f"{nar};[{n_in + 1}:a]volume=0.32,afade=t=out:st={total - 4:.3f}:d=4[bg];"
+        # abaixa a música enquanto o narrador fala e devolve nas pausas
+        f"[bg][key]sidechaincompress=threshold=0.03:ratio=4:attack=80:release=900[duck];"
+        f"[nar][duck]amix=inputs=2:duration=first:normalize=0,{master}"
     )
 
 
