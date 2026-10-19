@@ -108,26 +108,48 @@ def main(slug):
             last = label
         chain.append(f"[{last}]fade=t=in:st=0:d=1.5,fade=t=out:st={total - 2:.3f}:d=2[vout]")
 
-        # Áudio: narração + trilha ambiente baixinha em loop (se existir).
-        n_in = len(clips)
-        inputs += ["-i", str(audio)]
-        amb = ROOT / "assets" / "ambiente.mp3"
-        if amb.exists():
-            inputs += ["-stream_loop", "-1", "-i", str(amb)]
-            chain.append(
-                f"[{n_in + 1}:a]volume=0.35,afade=t=out:st={total - 3:.3f}:d=3[bg];"
-                f"[{n_in}:a]adelay=500|500[nar];"
-                f"[nar][bg]amix=inputs=2:duration=first:normalize=0[aout]"
-            )
-        else:
-            chain.append(f"[{n_in}:a]adelay=500|500[aout]")
-
-        run(["ffmpeg", "-y", *inputs, "-filter_complex", ";".join(chain),
+        a_inputs, a_chain = audio_mix(audio, len(clips), total)
+        run(["ffmpeg", "-y", *inputs, *a_inputs, "-filter_complex", ";".join(chain + [a_chain]),
              "-map", "[vout]", "-map", "[aout]", "-t", f"{total:.3f}",
              "-c:v", "libx264", "-preset", "faster", "-crf", "22", "-r", str(FPS),
-             "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart", str(out)])
+             "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", str(out)])
     print(f"pronto: {out}")
 
 
+def audio_mix(audio, n_in, total):
+    """Narração + trilha ambiente em loop, em estéreo e normalizada para -14 LUFS (padrão YouTube).
+
+    n_in é o índice do primeiro input de áudio no comando do ffmpeg.
+    """
+    inputs = ["-i", str(audio)]
+    nar = f"[{n_in}:a]adelay=500|500,pan=stereo|c0=c0|c1=c0[nar]"
+    master = "loudnorm=I=-14:TP=-1.5:LRA=11,aformat=sample_rates=48000:channel_layouts=stereo[aout]"
+    amb = ROOT / "assets" / "ambiente.mp3"
+    if not amb.exists():
+        return inputs, f"{nar};[nar]{master}"
+    inputs += ["-stream_loop", "-1", "-i", str(amb)]
+    return inputs, (
+        f"{nar};[{n_in + 1}:a]volume=0.35,afade=t=out:st={total - 3:.3f}:d=3[bg];"
+        f"[nar][bg]amix=inputs=2:duration=first:normalize=0,{master}"
+    )
+
+
+def remix(slug):
+    """Refaz só o áudio de um vídeo já renderizado, copiando o vídeo sem reencodar."""
+    out = ROOT / "videos" / f"{slug}.mp4"
+    total = duration(out)
+    a_inputs, a_chain = audio_mix(ROOT / "audio" / f"{slug}.mp3", 1, total)
+    tmp = out.with_suffix(".tmp.mp4")
+    run(["ffmpeg", "-y", "-i", str(out), *a_inputs, "-filter_complex", a_chain,
+         "-map", "0:v", "-map", "[aout]", "-t", f"{total:.3f}", "-c:v", "copy",
+         "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", str(tmp)])
+    tmp.replace(out)
+    print(f"áudio refeito: {out}")
+
+
 if __name__ == "__main__":
-    main(sys.argv[1])
+    if sys.argv[1] == "--remix":
+        for s in sys.argv[2:]:
+            remix(s)
+    else:
+        main(sys.argv[1])
