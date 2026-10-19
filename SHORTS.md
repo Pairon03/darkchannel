@@ -198,5 +198,5 @@ Sexta-feira 13: a queda dos Templários #shorts
 
 📜 Ecos da História: a história que os livros esquecem.
 
-#shorts #templários #cavaleirostemplários #sexta-feira13
+#shorts #templários #cavaleirostemplários #sextafeira13
 ```
