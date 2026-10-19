@@ -1,3 +1,4 @@
 # Vídeos finais são grandes demais para o GitHub (>100MB); gere com tools/render.py
 videos/
 __pycache__/
+shorts/

@@ -132,7 +132,9 @@ def audio_mix(audio, n_in, total):
     n_in é o índice do primeiro input de áudio no comando do ffmpeg.
     """
     inputs = ["-i", str(audio)]
-    nar = f"[{n_in}:a]adelay=500|500,pan=stereo|c0=c0|c1=c0,asplit=2[nar][key]"
+    # A narração da ElevenLabs vem baixa (~-34 LUFS): normaliza antes de mixar,
+    # senão a música fica mais alta que a voz.
+    nar = f"[{n_in}:a]loudnorm=I=-16:TP=-2,adelay=500|500,pan=stereo|c0=c0|c1=c0,asplit=2[nar][key]"
     master = "loudnorm=I=-14:TP=-1.5:LRA=11,aformat=sample_rates=48000:channel_layouts=stereo[aout]"
     # Trilha musical (tools/musica.py); se não existir, usa o drone ambiente antigo.
     bg = ROOT / "assets" / "musica.mp3"
@@ -142,9 +144,9 @@ def audio_mix(audio, n_in, total):
         return inputs, f"[{n_in}:a]adelay=500|500,pan=stereo|c0=c0|c1=c0,{master}"
     inputs += ["-stream_loop", "-1", "-i", str(bg)]
     return inputs, (
-        f"{nar};[{n_in + 1}:a]volume=0.32,afade=t=out:st={total - 4:.3f}:d=4[bg];"
+        f"{nar};[{n_in + 1}:a]volume=0.2,afade=t=out:st={total - 4:.3f}:d=4[bg];"
         # abaixa a música enquanto o narrador fala e devolve nas pausas
-        f"[bg][key]sidechaincompress=threshold=0.03:ratio=4:attack=80:release=900[duck];"
+        f"[bg][key]sidechaincompress=threshold=0.03:ratio=4:attack=80:release=1000[duck];"
         f"[nar][duck]amix=inputs=2:duration=first:normalize=0,{master}"
     )
 
