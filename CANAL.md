@@ -38,12 +38,19 @@ Cada cena tem uma linha `IMG:` com o prompt da imagem, em inglês.
 ## Pipeline de produção
 
 ```
-roteiros/NN-tema.md        → roteiro + metadados (TITULO, THUMB, DESCRICAO, TAGS)
-audio/NN-tema.mp3          → narração ElevenLabs (texto: python3 tools/narracao.py roteiros/NN-tema.md)
-imagens/NN/cenaXX.jpg      → 10 imagens 16:9 + thumb_base.jpg
-python3 tools/render.py NN-tema   → videos/NN-tema.mp4 (Ken Burns, crossfade, trilha ambiente)
+roteiros/NN-tema.md        → roteiro + metadados (TITULO, THUMB, DESCRICAO, TAGS);
+                              por cena: TXT: (texto na tela) e 3 linhas IMG:
+python3 tools/partes.py roteiros/NN-tema.md   → narração em 2 partes de até 5.000 caracteres
+tools/juntar.sh NN-tema URL1 URL2             → audio/NN-tema.mp3
+imagens/NN/cenaXX.jpg, cenaXXb.jpg, cenaXXc.jpg → 30 imagens 16:9 + thumb_base.jpg
+python3 tools/aparar.py imagens/NN/*.jpg       → remove faixas pretas
+python3 tools/render.py NN-tema   → videos/NN-tema.mp4 (Ken Burns, partículas, textos, efeitos sonoros)
 python3 tools/thumb.py NN-tema    → thumbnails/NN-tema.jpg (1280×720)
+python3 tools/short.py NN-tema "L1|L2"  → shorts/NN-tema-short.mp4
+tools/auto.sh                     → renderiza sozinho tudo o que já tem áudio e imagens
 ```
+
+Camadas de movimento: `tools/fx.py` (gera `assets/fx/`). Efeitos sonoros: `tools/sfx.py` (gera `assets/sfx/`).
 
 Os prompts de imagem de todos os roteiros estão em `prompts-imagens.md`.
 
@@ -82,6 +89,10 @@ Narração: voz gerada por IA (ElevenLabs). Imagens: ilustrações geradas por I
 - **Monetização:** o YouTube desmonetiza canais com conteúdo "repetitivo/produzido em massa". Para se proteger, mantenha roteiros originais (como estes) e varie os ganchos e as estruturas. Se possível, acrescente edição própria (zoom, legendas, efeitos sonoros).
 - Revise os fatos de cada roteiro antes de postar. Os fatos foram escritos com cuidado, mas os comentários de canais de história são exigentes.
 
-## Próximos temas (para o lote 2)
+## Lote 2
 
-Calígula · Átila, o Huno · A queda de Constantinopla · Os astecas e Hernán Cortés · Gengis Khan · O naufrágio do Vasa · Joana d'Arc · A Grande Muralha · Os gladiadoras (mulheres na arena) · O Exército de Terracota · A Inquisição · Os piratas da era de ouro · Rasputin · Chernobyl · O Titanic
+Veja `LOTE2.md`: Constantinopla, Titanic, Calígula, Gengis Khan, Joana d'Arc, Exército de Terracota e Átila. Os Astecas estão prontos e só esperam a narração.
+
+## Próximos temas (lote 3)
+
+O naufrágio do Vasa · A Grande Muralha · As gladiadoras (mulheres na arena) · A Inquisição · Os piratas da era de ouro · Rasputin · Chernobyl · Os maias · O incêndio de Roma · Napoleão na Rússia
