@@ -109,7 +109,7 @@ def esc(s):
     return s.replace("\\", "\\\\").replace(":", "\\:").replace("'", "’").replace("%", "\\%")
 
 
-def main(slug, title):
+def main(slug, title, src=None):
     md = (ROOT / "roteiros" / f"{slug}.md").read_text()
     sc = scenes(md)
     audio = ROOT / "audio" / f"{slug}.mp3"
@@ -143,7 +143,9 @@ def main(slug, title):
             "[a]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,"
             "boxblur=28:2,eq=brightness=-0.22:saturation=0.8[bg];"
             # zoom de impacto nos primeiros 0,6 s (1,18x -> 1x)
-            "[b]scale=-2:1000,crop=1080:1000,"
+            # mostra só os 78% de cima do quadro: o texto de tela do vídeo longo fica
+            # no rodapé (y > 80%) e apareceria cortado na vertical
+            "[b]scale=-2:1282,crop=1080:1000:(iw-1080)/2:0,"
             "scale=w='trunc(1080*(1+0.18*max(0\\,1-t/0.6))/2)*2':h=-2:eval=frame,crop=1080:1000[fg];"
             f"color=c=0xC81616:s=1080x10:r=30:d={total:.2f}[bar];"
             "[bg][fg]overlay=0:400[base];"
@@ -162,7 +164,7 @@ def main(slug, title):
             f"[0:a]afade=t=out:st={total - 1.2:.2f}:d=1.2[aout]"
         )
         subprocess.run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-t", f"{total:.2f}",
-                        "-i", str(ROOT / "videos" / f"{slug}.mp4"), "-filter_complex", vf,
+                        "-i", str(src or ROOT / "videos" / f"{slug}.mp4"), "-filter_complex", vf,
                         "-map", "[v]", "-map", "[aout]", "-c:v", "libx264", "-preset", "medium",
                         "-crf", "21", "-r", "30", "-c:a", "aac", "-b:a", "192k",
                         "-movflags", "+faststart", str(out)], check=True)
@@ -170,4 +172,4 @@ def main(slug, title):
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(*sys.argv[1:4])
