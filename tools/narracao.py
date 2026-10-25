@@ -10,6 +10,6 @@ md = open(sys.argv[1]).read()
 blocks = re.split(r"^## CENA \d+\s*$", md, flags=re.M)[1:]
 paras = []
 for b in blocks:
-    lines = [l for l in b.strip().splitlines() if l.strip() and not l.startswith("IMG:")]
+    lines = [l for l in b.strip().splitlines() if l.strip() and not l.startswith(("IMG:", "TXT:"))]
     paras.append(" ".join(lines))
 print("\n\n".join(paras))

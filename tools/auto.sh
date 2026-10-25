@@ -1,9 +1,9 @@
 #!/bin/sh
 # Renderiza automaticamente todo vídeo que já tem áudio + 10 imagens + thumb_base
-# e ainda não tem MP4. Roda até não sobrar nada pendente por 20 min.
+# e ainda não tem MP4. Roda até não sobrar nada pendente por 2 h.
 cd "$(dirname "$0")/.."
 idle=0
-while [ $idle -lt 120 ]; do
+while [ $idle -lt 720 ]; do
   while pgrep -f "tools/render.py" >/dev/null; do sleep 10; done
   did=0
   for a in audio/*.mp3; do

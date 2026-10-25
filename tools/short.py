@@ -22,7 +22,7 @@ FONT_DIR = ROOT / "assets" / "fonts"
 
 def scenes(md):
     blocks = re.split(r"^## CENA \d+\s*$", md, flags=re.M)[1:]
-    return [" ".join(l for l in b.strip().splitlines() if l.strip() and not l.startswith("IMG:"))
+    return [" ".join(l for l in b.strip().splitlines() if l.strip() and not l.startswith(("IMG:", "TXT:")))
             for b in blocks]
 
 
@@ -87,11 +87,20 @@ Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
         n = sum(len(" ".join(c)) for c in chunks) or 1
         t = a
         for c in chunks:
-            txt = " ".join(c)
-            d = (b - a) * len(txt) / n
-            # destaca em dourado palavras com números
-            txt = re.sub(r"(\b\d[\d.]*\b)", r"{\\c&H6AC4E9&}\1{\\c&HFFFFFF&}", txt.upper())
-            lines.append(f"Dialogue: 0,{ass_time(t + DELAY)},{ass_time(t + d + DELAY)},Cap,,0,0,0,,{txt}")
+            d = (b - a) * len(" ".join(c)) / n
+            # Karaokê: o bloco de 3 palavras fica na tela e a palavra falada
+            # acende em dourado, um pouco maior. O bloco entra com um "pop".
+            wl = sum(len(w) for w in c) or 1
+            tw = t
+            for k, w in enumerate(c):
+                dw = d * len(w) / wl
+                pop = r"{\fscx85\fscy85\t(0,110,\fscx100\fscy100)}" if k == 0 else ""
+                txt = " ".join(
+                    (r"{\c&H6AC4E9&\fscx112\fscy112}" + x.upper() + r"{\r}") if j == k
+                    else re.sub(r"(\b\d[\d.]*\b)", r"{\\c&H6AC4E9&}\1{\\c&HFFFFFF&}", x.upper())
+                    for j, x in enumerate(c))
+                lines.append(f"Dialogue: 0,{ass_time(tw + DELAY)},{ass_time(tw + dw + DELAY)},Cap,,0,0,0,,{pop}{txt}")
+                tw += dw
             t += d
     Path(path).write_text(head + "\n".join(lines) + "\n")
 
@@ -133,8 +142,13 @@ def main(slug, title):
             "[0:v]split=2[a][b];"
             "[a]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,"
             "boxblur=28:2,eq=brightness=-0.22:saturation=0.8[bg];"
-            "[b]scale=-2:1000,crop=1080:1000[fg];"
-            "[bg][fg]overlay=0:400,"
+            # zoom de impacto nos primeiros 0,6 s (1,18x -> 1x)
+            "[b]scale=-2:1000,crop=1080:1000,"
+            "scale=w='trunc(1080*(1+0.18*max(0\\,1-t/0.6))/2)*2':h=-2:eval=frame,crop=1080:1000[fg];"
+            f"color=c=0xC81616:s=1080x10:r=30:d={total:.2f}[bar];"
+            "[bg][fg]overlay=0:400[base];"
+            # barra de progresso vermelha logo abaixo da imagem
+            f"[base][bar]overlay=x='-W+W*t/{total:.2f}':y=1400:shortest=1,"
             f"drawtext=fontfile={anton}:text='{esc(l1.strip())}':fontsize=96:fontcolor=white:"
             "borderw=6:bordercolor=black:x=(w-text_w)/2:y=150,"
             f"drawtext=fontfile={anton}:text='{esc(l2.strip())}':fontsize=96:fontcolor=white:"
