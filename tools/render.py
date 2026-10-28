@@ -22,12 +22,20 @@ import sys
 import tempfile
 from pathlib import Path
 
+from angulos import framings, plan_cuts
+
 ROOT = Path(__file__).resolve().parent.parent
 W, H, FPS = 1920, 1080, 30
 FADE = 0.8  # segundos de transição entre imagens
 FONT_DIR = ROOT / "assets" / "fonts"
 MUSIC_VOL = 0.224  # 0,2 aprovado no lote 1, +1 dB
 NAR_DELAY = 0.5
+HOOK_LEN = 3.0     # gancho visual: frase da thumbnail na tela nos 3 primeiros segundos
+POP_LEN = 1.8      # quanto tempo um número/data fica na tela
+CLEAN_LEN = 65     # segundos da cópia sem textos usada pelos Shorts
+# Modo dinâmico (padrão): cada imagem vira várias tomadas (geral, closes) com corte
+# seco nas pausas da narração. Use --estatico para o estilo antigo, uma panorâmica por imagem.
+DYNAMIC = "--estatico" not in sys.argv
 
 # Camada de movimento por palavra-chave do prompt da imagem.
 FIRE = re.compile(r"fire|burning|flame|ember|spark|molten|explosion|lava|blaze|inferno", re.I)
@@ -90,14 +98,32 @@ def pick_fx(prompt):
     return "poeira"
 
 
-def make_clip(img, prompt, i, n, out):
+def framed(i, n, f):
+    """zoompan de uma tomada com enquadramento planejado (tools/angulos.py).
+
+    f = (z0, z1, cx0, cy0, cx1, cy1): zoom e centro (0–1) no início e no fim da tomada.
+    Os closes entram com um "soco" de zoom curto (+5% que some em 0,2 s), que marca o corte.
+    """
+    z0, z1, cx0, cy0, cx1, cy1 = f
+    p = f"(on/{max(n - 1, 1)})"
+    punch = f"+0.05*max(0\\,1-on/6)" if z0 > 1.2 else ""
+    z = f"{z0}+({z1}-{z0})*{p}{punch}"
+    cx = f"({cx0}+({cx1}-{cx0})*{p})"
+    cy = f"({cy0}+({cy1}-{cy0})*{p})"
+    x = f"max(0\\,min(iw-iw/zoom\\,{cx}*iw-iw/zoom/2+7*sin(on/37+{i})+4*sin(on/13)))"
+    y = f"max(0\\,min(ih-ih/zoom\\,{cy}*ih-ih/zoom/2+6*sin(on/29+{i * 2})+3*sin(on/17)))"
+    return f"zoompan=z='{z}':x='{x}':y='{y}':d={n}:s={W}x{H}:fps={FPS}"
+
+
+def make_clip(img, prompt, i, n, out, framing=None):
     fx = pick_fx(prompt)
     flicker = (",eq=eval=frame:brightness='0.035*sin(2*PI*t*1.3)+0.02*sin(2*PI*t*3.7+1)'"
                if FLICKER.search(prompt) else "")
+    camera = framed(i, n, framing) if framing else ken_burns(i, n)
     graph = (
         # corta 4% das bordas: algumas imagens vêm com moldura ou faixa preta
         f"[0:v]crop=iw*0.92:ih*0.92,scale=2880:1620:force_original_aspect_ratio=increase,crop=2880:1620,"
-        f"{ken_burns(i, n)}{flicker},format=gbrp[base];"
+        f"{camera}{flicker},format=gbrp[base];"
         "[1:v]format=gbrp[fx];"
         f"[base][fx]blend=all_mode=screen:all_opacity={FX_OPACITY[fx]},"
         # gradação escura: menos saturação, contraste, vinheta e granulação
@@ -133,6 +159,107 @@ def caption_filters(captions, tmp):
     return out
 
 
+def fade_alpha(start, end, fin=0.25, fout=0.35):
+    return (f"if(lt(t,{start:.2f}),0,if(lt(t,{start + fin:.2f}),(t-{start:.2f})/{fin},"
+            f"if(lt(t,{end - fout:.2f}),1,if(lt(t,{end:.2f}),({end:.2f}-t)/{fout},0))))")
+
+
+def hook_filters(l1, l2, tmp, end=HOOK_LEN):
+    """Gancho visual dos 3 primeiros segundos: a frase da thumbnail, grande, no centro."""
+    anton = FONT_DIR / "Anton-Regular.ttf"
+    out = []
+    for k, (txt, y, box) in enumerate([(l1, "h*0.36", False), (l2, "h*0.36+150", True)]):
+        if not txt:
+            continue
+        tf = Path(tmp) / f"hook{k}.txt"
+        tf.write_text(txt)
+        st = 0.15 + 0.35 * k  # a 2ª linha entra logo depois, no ritmo do impacto
+        style = ("box=1:boxcolor=0xC81616:boxborderw=22:fontcolor=white" if box
+                 else "fontcolor=white:borderw=6:bordercolor=black")
+        out.append(f"drawtext=fontfile={anton}:textfile={tf}:fontsize=128:{style}:"
+                   f"shadowcolor=black@0.7:shadowx=5:shadowy=5:x=(w-text_w)/2:y={y}:"
+                   f"alpha='{fade_alpha(st, end, 0.12)}':enable='between(t,{st:.2f},{end:.2f})'")
+    return out
+
+
+def pop_filters(pops, tmp):
+    """Números e datas que "saltam" na tela no momento em que são narrados."""
+    anton = FONT_DIR / "Anton-Regular.ttf"
+    out = []
+    for k, (st, txt) in enumerate(pops):
+        tf = Path(tmp) / f"pop{k}.txt"
+        tf.write_text(txt)
+        end = st + POP_LEN
+        # entra 30% maior e encolhe até o tamanho final em 0,15 s
+        size = f"fontsize='92+40*max(0\\,1-(t-{st:.2f})/0.15)'"
+        out.append(f"drawtext=fontfile={anton}:textfile={tf}:{size}:fontcolor=0xE9C46A:"
+                   f"borderw=5:bordercolor=black:shadowcolor=black@0.8:shadowx=4:shadowy=4:"
+                   f"x=(w-text_w)/2:y=h*0.70-text_h/2:alpha='{fade_alpha(st, end, 0.08, 0.3)}':"
+                   f"enable='between(t,{st:.2f},{end:.2f})'")
+    return out
+
+
+def question_filters(start, end, question, tmp):
+    """Pergunta final na tela, convidando a comentar (a narração já faz a pergunta)."""
+    anton = FONT_DIR / "Anton-Regular.ttf"
+    words, lines, cur = question.upper().split(), [], ""
+    for w_ in words:
+        if len(cur) + len(w_) > 38 and cur:
+            lines.append(cur)
+            cur = w_
+        else:
+            cur = (cur + " " + w_).strip()
+    lines.append(cur)
+    tf = Path(tmp) / "pergunta.txt"
+    tf.write_text("\n".join(lines))
+    tl = Path(tmp) / "comente.txt"
+    tl.write_text("COMENTE AQUI EMBAIXO")
+    a = fade_alpha(start, end, 0.3, 0.6)
+    return [
+        f"drawbox=x=0:y=ih*0.60:w=iw:h=ih*0.34:color=black@0.55:t=fill:"
+        f"enable='between(t,{start:.2f},{end:.2f})'",
+        f"drawtext=fontfile={anton}:textfile={tf}:fontsize=54:fontcolor=white:line_spacing=8:"
+        f"x=(w-text_w)/2:y=h*0.63:alpha='{a}':enable='between(t,{start:.2f},{end:.2f})'",
+        f"drawtext=fontfile={anton}:textfile={tl}:fontsize=44:fontcolor=white:"
+        f"box=1:boxcolor=0xC81616:boxborderw=12:x=(w-text_w)/2:y=h*0.865:"
+        f"alpha='{a}':enable='between(t,{start + 0.4:.2f},{end:.2f})'",
+    ]
+
+
+def speech_timeline(audio, scenes):
+    """Frases com início e fim estimados (encaixados nas pausas) e os pontos de corte.
+
+    Reaproveita o alinhamento das legendas dos Shorts. Os tempos já incluem o
+    atraso da narração no vídeo (NAR_DELAY).
+    """
+    from short import align, pauses
+    full = " ".join(s[0] for s in scenes)
+    phrases = [p.strip() for p in re.split(r"(?<=[.,?!:])\s+", full) if p.strip()]
+    pz = pauses(audio)
+    timed = align(phrases, len(full.replace(" ", "")) + len(phrases), duration(audio), pz)
+    timed = [(a + NAR_DELAY, b + NAR_DELAY, p) for a, b, p in timed]
+    cuts = [(a + b) / 2 + NAR_DELAY for a, b in pz]
+    return timed, cuts
+
+
+NUM = re.compile(r"\b\d{1,2} de (?:janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|"
+                 r"outubro|novembro|dezembro)(?: de \d{3,4})?|\b\d{3,4}\b(?: antes de Cristo)?", re.I)
+
+
+def number_pops(timed, avoid, gap=6.0):
+    """Um "pop" por data/ano narrado, na posição estimada dentro da frase, sem encavalar."""
+    pops, last = [], -99.0
+    for a, b, ph in timed:
+        for m in NUM.finditer(ph):
+            t = a + (b - a) * m.start() / max(len(ph), 1)
+            if t - last < gap or any(s - 1 <= t <= e for s, e in avoid):
+                continue
+            txt = m.group(0).upper().replace("ANTES DE CRISTO", "a.C.")
+            pops.append((t, txt))
+            last = t
+    return pops
+
+
 def main(slug):
     num = slug.split("-")[0]
     md = (ROOT / "roteiros" / f"{slug}.md").read_text()
@@ -158,16 +285,39 @@ def main(slug):
             prompt = sc[2][k] if k < len(sc[2]) else (sc[2][0] if sc[2] else "")
             shots.append((p, prompt, span * c / sum(chars) / len(paths), si))
 
+    timed, cut_points = speech_timeline(audio, scenes) if DYNAMIC else ([], [])
+
     out = ROOT / "videos" / f"{slug}.mp4"
     out.parent.mkdir(exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         clips = []
+        t_start = 0.0  # início da imagem na linha do tempo final
         for i, (img, prompt, d, si) in enumerate(shots):
             n = int(round(d * FPS))
             clip = Path(tmp) / f"c{i:02d}.mp4"
-            fx = make_clip(img, prompt, i, n, clip)
+            if DYNAMIC:
+                # Tomadas cortadas nas pausas da fala; a transição para a próxima
+                # imagem ocupa os últimos FADE segundos, então não corta ali.
+                bounds = plan_cuts(t_start, t_start + n / FPS - FADE, cut_points)
+                bounds[-1] = t_start + n / FPS
+                fr = framings(img, len(bounds) - 1, seed=i)
+                parts, used = [], 0
+                for j, (a, b) in enumerate(zip(bounds, bounds[1:])):
+                    nj = n - used if j == len(bounds) - 2 else int(round((b - a) * FPS))
+                    part = Path(tmp) / f"c{i:02d}_{j}.mp4"
+                    fx = make_clip(img, prompt, i * 7 + j, nj, part, fr[j])
+                    parts.append(part)
+                    used += nj
+                lst = Path(tmp) / f"c{i:02d}.txt"
+                lst.write_text("".join(f"file '{p}'\n" for p in parts))
+                run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(lst), "-c", "copy", str(clip)])
+                takes = f", {len(parts)} tomadas"
+            else:
+                fx = make_clip(img, prompt, i, n, clip)
+                takes = ""
             clips.append((clip, n / FPS, si))
-            print(f"imagem {i + 1}/{len(shots)} ok ({n / FPS:.1f}s, {fx})", flush=True)
+            t_start += n / FPS - FADE
+            print(f"imagem {i + 1}/{len(shots)} ok ({n / FPS:.1f}s, {fx}{takes})", flush=True)
 
         # Encadeia com crossfade; na troca de cena, mergulho rápido no preto.
         inputs, chain, offset, last = [], [], 0.0, "0:v"
@@ -185,13 +335,37 @@ def main(slug):
             last = label
 
         captions = []
+        first_cap = HOOK_LEN + 0.2 if DYNAMIC else 1.2
         for si, sc in enumerate(scenes):
             if sc[1] and si in scene_start:
-                st = 1.2 if si == 0 else scene_start[si] + FADE + 0.3
+                st = first_cap if si == 0 else scene_start[si] + FADE + 0.3
                 captions.append((st, st + (5.0 if si == 0 else 4.5), sc[1]))
-        post = ",".join(["fade=t=in:st=0:d=1.5", f"fade=t=out:st={total - 2:.3f}:d=2",
-                         *caption_filters(captions, tmp)])
-        chain.append(f"[{last}]{post}[vout]")
+        extra = []
+        if DYNAMIC:
+            m = re.search(r"^THUMB:\s*(.*)$", md, re.M)
+            l1, l2 = ([s.strip() for s in m.group(1).split("|")] + [""])[:2] if m else ("", "")
+            extra += hook_filters(l1, l2, tmp)
+            # pergunta final: a última frase com "?" (junta o pedaço antes da vírgula)
+            qi = [k for k, (a, b, p) in enumerate(timed) if p.endswith("?") and a > total * 0.85]
+            q_span = []
+            if qi:
+                k = qi[-1]
+                while k > 0 and timed[k - 1][2].endswith(","):
+                    k -= 1
+                qa = timed[k][0]
+                q_span = [(qa, total - 1.5)]
+                qtext = " ".join(p for _, _, p in timed[k:qi[-1] + 1])
+                extra += question_filters(qa, total - 1.5, qtext, tmp)
+            avoid = [(0, HOOK_LEN + 0.5)] + [(s, e) for s, e, _ in captions] + q_span
+            extra += pop_filters(number_pops(timed, avoid), tmp)
+        fade_in = "fade=t=in:st=0:d=0.3" if DYNAMIC else "fade=t=in:st=0:d=1.5"
+        post = ",".join([fade_in, f"fade=t=out:st={total - 2:.3f}:d=2",
+                         *caption_filters(captions, tmp), *extra])
+        # Cópia "limpa" (sem textos) do primeiro minuto, usada pelo Short, que
+        # tem título e legendas próprios.
+        chain.append(f"[{last}]split=2[vmain][vclean]")
+        chain.append(f"[vmain]{post}[vout]")
+        chain.append(f"[vclean]trim=0:{CLEAN_LEN},setpts=PTS-STARTPTS[vcl]")
 
         # Efeitos sonoros: impacto na abertura, whoosh em cada troca de cena,
         # tensão subindo antes do clímax (cena 8).
@@ -203,7 +377,12 @@ def main(slug):
             sfx.append(("riser", scene_start[7] + FADE / 2 - 4.0, 0.13))
 
         a_inputs, a_chain = audio_mix(audio, len(clips), total, sfx)
+        a_chain = a_chain.replace("[aout]", "[amix]") + (
+            f";[amix]asplit=2[aout][acl0];[acl0]atrim=0:{CLEAN_LEN},asetpts=PTS-STARTPTS[acl]")
+        clean = ROOT / "videos" / f".{slug}-limpo.mp4"
         run(["ffmpeg", "-y", *inputs, *a_inputs, "-filter_complex", ";".join(chain + [a_chain]),
+             "-map", "[vcl]", "-map", "[acl]", "-c:v", "libx264", "-preset", "faster", "-crf", "20",
+             "-r", str(FPS), "-c:a", "aac", "-b:a", "192k", str(clean),
              "-map", "[vout]", "-map", "[aout]", "-t", f"{total:.3f}",
              "-c:v", "libx264", "-preset", "faster", "-crf", "24", "-r", str(FPS),
              # teto de bitrate: as partículas e a granulação inflam o arquivo; assim
@@ -267,8 +446,9 @@ def remix(slug):
 
 
 if __name__ == "__main__":
-    if sys.argv[1] == "--remix":
-        for s in sys.argv[2:]:
+    args = [a for a in sys.argv[1:] if a != "--estatico"]
+    if args[0] == "--remix":
+        for s in args[1:]:
             remix(s)
     else:
-        main(sys.argv[1])
+        main(args[0])

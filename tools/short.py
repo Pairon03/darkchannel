@@ -109,6 +109,12 @@ def esc(s):
     return s.replace("\\", "\\\\").replace(":", "\\:").replace("'", "’").replace("%", "\\%")
 
 
+def clean_or_full(slug):
+    """Prefere a cópia sem textos que o render gera (videos/.<slug>-limpo.mp4)."""
+    clean = ROOT / "videos" / f".{slug}-limpo.mp4"
+    return clean if clean.exists() else ROOT / "videos" / f"{slug}.mp4"
+
+
 def main(slug, title, src=None):
     md = (ROOT / "roteiros" / f"{slug}.md").read_text()
     sc = scenes(md)
@@ -164,7 +170,7 @@ def main(slug, title, src=None):
             f"[0:a]afade=t=out:st={total - 1.2:.2f}:d=1.2[aout]"
         )
         subprocess.run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-t", f"{total:.2f}",
-                        "-i", str(src or ROOT / "videos" / f"{slug}.mp4"), "-filter_complex", vf,
+                        "-i", str(src or clean_or_full(slug)), "-filter_complex", vf,
                         "-map", "[v]", "-map", "[aout]", "-c:v", "libx264", "-preset", "medium",
                         "-crf", "21", "-r", "30", "-c:a", "aac", "-b:a", "192k",
                         "-movflags", "+faststart", str(out)], check=True)
