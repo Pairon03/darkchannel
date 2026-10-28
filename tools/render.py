@@ -17,6 +17,7 @@ Gera:
   videos/<slug>.mp4
 """
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -289,12 +290,21 @@ def main(slug):
 
     out = ROOT / "videos" / f"{slug}.mp4"
     out.parent.mkdir(exist_ok=True)
+    cache = ROOT / "videos" / f".tmp-{slug}"
+    cache.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as tmp:
         clips = []
         t_start = 0.0  # início da imagem na linha do tempo final
         for i, (img, prompt, d, si) in enumerate(shots):
             n = int(round(d * FPS))
-            clip = Path(tmp) / f"c{i:02d}.mp4"
+            # As tomadas ficam em videos/.tmp-<slug> até o fim: se a etapa final
+            # falhar, rodar de novo reaproveita o que já foi renderizado.
+            clip = cache / f"c{i:02d}.mp4"
+            if clip.exists() and clip.stat().st_mtime > img.stat().st_mtime:
+                clips.append((clip, n / FPS, si))
+                t_start += n / FPS - FADE
+                print(f"imagem {i + 1}/{len(shots)} (já renderizada)", flush=True)
+                continue
             if DYNAMIC:
                 # Tomadas cortadas nas pausas da fala; a transição para a próxima
                 # imagem ocupa os últimos FADE segundos, então não corta ali.
@@ -304,11 +314,11 @@ def main(slug):
                 parts, used = [], 0
                 for j, (a, b) in enumerate(zip(bounds, bounds[1:])):
                     nj = n - used if j == len(bounds) - 2 else int(round((b - a) * FPS))
-                    part = Path(tmp) / f"c{i:02d}_{j}.mp4"
+                    part = cache / f"c{i:02d}_{j}.mp4"
                     fx = make_clip(img, prompt, i * 7 + j, nj, part, fr[j])
                     parts.append(part)
                     used += nj
-                lst = Path(tmp) / f"c{i:02d}.txt"
+                lst = cache / f"c{i:02d}.txt"
                 lst.write_text("".join(f"file '{p}'\n" for p in parts))
                 run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(lst), "-c", "copy", str(clip)])
                 takes = f", {len(parts)} tomadas"
@@ -361,11 +371,8 @@ def main(slug):
         fade_in = "fade=t=in:st=0:d=0.3" if DYNAMIC else "fade=t=in:st=0:d=1.5"
         post = ",".join([fade_in, f"fade=t=out:st={total - 2:.3f}:d=2",
                          *caption_filters(captions, tmp), *extra])
-        # Cópia "limpa" (sem textos) do primeiro minuto, usada pelo Short, que
-        # tem título e legendas próprios.
-        chain.append(f"[{last}]split=2[vmain][vclean]")
-        chain.append(f"[vmain]{post}[vout]")
-        chain.append(f"[vclean]trim=0:{CLEAN_LEN},setpts=PTS-STARTPTS[vcl]")
+        xfades = list(chain)
+        chain.append(f"[{last}]{post}[vout]")
 
         # Efeitos sonoros: impacto na abertura, whoosh em cada troca de cena,
         # tensão subindo antes do clímax (cena 8).
@@ -377,18 +384,30 @@ def main(slug):
             sfx.append(("riser", scene_start[7] + FADE / 2 - 4.0, 0.13))
 
         a_inputs, a_chain = audio_mix(audio, len(clips), total, sfx)
-        a_chain = a_chain.replace("[aout]", "[amix]") + (
-            f";[amix]asplit=2[aout][acl0];[acl0]atrim=0:{CLEAN_LEN},asetpts=PTS-STARTPTS[acl]")
-        clean = ROOT / "videos" / f".{slug}-limpo.mp4"
+
+        if DYNAMIC:
+            # Cópia "limpa" (sem textos) do primeiro minuto, usada pelo Short, que tem
+            # título e legendas próprios. Passo separado e pequeno: só as primeiras imagens.
+            k, acc = 0, clips[0][1]
+            while acc - FADE < CLEAN_LEN and k + 1 < len(clips):
+                k += 1
+                acc += clips[k][1] - FADE
+            vlast = f"v{k}" if k else "0:v"
+            ca_inputs, ca_chain = audio_mix(audio, k + 1, total, sfx)
+            run(["ffmpeg", "-y", *inputs[:2 * (k + 1)], *ca_inputs, "-filter_complex",
+                 ";".join(xfades[:k] + [f"[{vlast}]trim=0:{CLEAN_LEN},setpts=PTS-STARTPTS[vcl]", ca_chain]),
+                 "-map", "[vcl]", "-map", "[aout]", "-t", str(CLEAN_LEN), "-c:v", "libx264",
+                 "-preset", "faster", "-crf", "20", "-r", str(FPS), "-c:a", "aac", "-b:a", "192k",
+                 str(ROOT / "videos" / f".{slug}-limpo.mp4")])
+
         run(["ffmpeg", "-y", *inputs, *a_inputs, "-filter_complex", ";".join(chain + [a_chain]),
-             "-map", "[vcl]", "-map", "[acl]", "-c:v", "libx264", "-preset", "faster", "-crf", "20",
-             "-r", str(FPS), "-c:a", "aac", "-b:a", "192k", str(clean),
              "-map", "[vout]", "-map", "[aout]", "-t", f"{total:.3f}",
              "-c:v", "libx264", "-preset", "faster", "-crf", "24", "-r", str(FPS),
              # teto de bitrate: as partículas e a granulação inflam o arquivo; assim
              # um vídeo de ~7 min fica abaixo de 100 MB (limite para enviar)
              "-maxrate", "1500k", "-bufsize", "3000k",
              "-c:a", "aac", "-b:a", "192k", "-ar", "48000", "-movflags", "+faststart", str(out)])
+    shutil.rmtree(cache, ignore_errors=True)
     print(f"pronto: {out}")
 
 
