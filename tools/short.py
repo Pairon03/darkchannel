@@ -41,8 +41,13 @@ def pauses(audio):
 
 
 def align(phrases, text_total_chars, speech_dur, pz):
-    """Estima o fim de cada frase pela proporção de caracteres e encaixa na pausa mais próxima."""
-    rate = speech_dur / text_total_chars
+    """Estima o fim de cada frase pela proporção de caracteres e encaixa na pausa mais próxima.
+
+    A velocidade de fala é calculada só sobre o tempo falado (duração menos os silêncios):
+    como cada frase "pula" a pausa seguinte, contar os silêncios na velocidade fazia a
+    estimativa escorregar ~25% em narrações longas. text_total_chars fica por compatibilidade.
+    """
+    rate = (speech_dur - sum(b - a for a, b in pz)) / max(sum(len(p) for p in phrases), 1)
     t, out, used = 0.0, [], set()
     for ph in phrases:
         est = t + len(ph) * rate
@@ -59,6 +64,77 @@ def align(phrases, text_total_chars, speech_dur, pz):
             end = nxt = est
         out.append((t, end, ph))
         t = nxt
+    return out
+
+
+def align_dp(phrases, speech_dur, pz):
+    """Alinhamento global: cada fim de frase é casado com uma pausa, em ordem.
+
+    Trabalha em "tempo de fala" (sem os silêncios): a pausa j está no ponto s_j de fala
+    acumulada, e a frase i deveria terminar em e_i = velocidade × caracteres acumulados.
+    Programação dinâmica escolhe, em ordem crescente, a pausa de cada frase minimizando
+    |s_j - e_i|. Pausas sobrando (respiros no meio de uma frase) são simplesmente puladas.
+    Erros não se acumulam, ao contrário do encaixe guloso de align().
+    """
+    pz = [(a, b) for a, b in pz if a > 0.05 and b < speech_dur - 0.05]
+    s_pos, acc = [], 0.0
+    for a, b in pz:
+        s_pos.append(a - acc)
+        acc += b - a
+    talk = speech_dur - acc
+    lens = [len(p) for p in phrases]
+    rate = talk / max(sum(lens), 1)
+    e, c = [], 0
+    for L in lens[:-1]:
+        c += L
+        e.append(c * rate)
+    n, m = len(e), len(pz)
+    if n == 0 or m < n:
+        return align(phrases, 0, speech_dur, pz)
+    dur = [b - a for a, b in pz]
+    final = [p.rstrip()[-1] in ".?!" for p in phrases[:-1]]
+
+    def fit(i, j):
+        # distância no tempo + coerência com a pontuação: fim de período pede pausa
+        # longa; vírgula, pausa curta
+        c = abs(s_pos[j] - e[i])
+        if final[i]:
+            c += 4 * max(0.0, 0.55 - dur[j])
+        else:
+            c += 2 * max(0.0, dur[j] - 0.75)
+        return c
+
+    # pular uma pausa longa (provável fim de frase) custa caro
+    skip = [3 * max(0.0, d - 0.45) for d in dur]
+    P = [0.0]
+    for v in skip:
+        P.append(P[-1] + v)
+    INF = float("inf")
+    # dp[i][j]: custo mínimo casando as frases 0..i, com a frase i na pausa j
+    dp = [[INF] * m for _ in range(n)]
+    back = [[-1] * m for _ in range(n)]
+    for j in range(m):
+        dp[0][j] = fit(0, j) + P[j]
+    for i in range(1, n):
+        best, bj = INF, -1
+        for j in range(i, m):
+            k = j - 1  # candidata a pausa anterior; custo de pular as pausas entre k e j
+            v = dp[i - 1][k] - P[k + 1]
+            if v < best:
+                best, bj = v, k
+            dp[i][j] = best + P[j] + fit(i, j)
+            back[i][j] = bj
+    j = min(range(n - 1, m), key=lambda k: dp[n - 1][k] + P[m] - P[k + 1])
+    picks = [0] * n
+    for i in range(n - 1, -1, -1):
+        picks[i] = j
+        j = back[i][j]
+    out, t = [], 0.0
+    for i, ph in enumerate(phrases[:-1]):
+        a, b = pz[picks[i]]
+        out.append((t, a, ph))
+        t = b
+    out.append((t, speech_dur, phrases[-1]))
     return out
 
 

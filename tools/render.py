@@ -191,11 +191,12 @@ def pop_filters(pops, tmp):
         tf = Path(tmp) / f"pop{k}.txt"
         tf.write_text(txt)
         end = st + POP_LEN
-        # entra 30% maior e encolhe até o tamanho final em 0,15 s
-        size = f"fontsize='92+40*max(0\\,1-(t-{st:.2f})/0.15)'"
-        out.append(f"drawtext=fontfile={anton}:textfile={tf}:{size}:fontcolor=0xE9C46A:"
+        # sobe 40 px até a posição final em 0,15 s (fontsize animado derruba o
+        # ffmpeg 6.1 em vídeos longos, por isso o "pop" é feito com posição + fade)
+        y = f"h*0.70-text_h/2+40*max(0\\,1-(t-{st:.2f})/0.15)"
+        out.append(f"drawtext=fontfile={anton}:textfile={tf}:fontsize=100:fontcolor=0xE9C46A:"
                    f"borderw=5:bordercolor=black:shadowcolor=black@0.8:shadowx=4:shadowy=4:"
-                   f"x=(w-text_w)/2:y=h*0.70-text_h/2:alpha='{fade_alpha(st, end, 0.08, 0.3)}':"
+                   f"x=(w-text_w)/2:y='{y}':alpha='{fade_alpha(st, end, 0.08, 0.3)}':"
                    f"enable='between(t,{st:.2f},{end:.2f})'")
     return out
 
@@ -233,11 +234,11 @@ def speech_timeline(audio, scenes):
     Reaproveita o alinhamento das legendas dos Shorts. Os tempos já incluem o
     atraso da narração no vídeo (NAR_DELAY).
     """
-    from short import align, pauses
+    from short import align_dp, pauses
     full = " ".join(s[0] for s in scenes)
     phrases = [p.strip() for p in re.split(r"(?<=[.,?!:])\s+", full) if p.strip()]
     pz = pauses(audio)
-    timed = align(phrases, len(full.replace(" ", "")) + len(phrases), duration(audio), pz)
+    timed = align_dp(phrases, duration(audio), pz)
     timed = [(a + NAR_DELAY, b + NAR_DELAY, p) for a, b, p in timed]
     cuts = [(a + b) / 2 + NAR_DELAY for a, b in pz]
     return timed, cuts
