@@ -101,4 +101,4 @@ O naufrágio do Vasa · A Grande Muralha · As gladiadoras (mulheres na arena) �
 
 https://claude.ai/artifact/E2Vgx3JNHxL9oeYJJjP9mr
 
-Mostra todos os vídeos longos e Shorts com a data de postagem, o título e a descrição para copiar, e um botão para marcar o que já foi postado. As marcações ficam salvas no próprio painel. Para incluir vídeos novos: `sh tools/painel/montar.sh <saida.html>` e publicar de novo no mesmo endereço.
+Mostra todos os vídeos longos e Shorts com a data de postagem, o título e a descrição para copiar, e um botão para marcar o que já foi programado no YouTube. As marcações ficam salvas no próprio painel. Para incluir vídeos novos: `sh tools/painel/montar.sh <saida.html>` e publicar de novo no mesmo endereço.
