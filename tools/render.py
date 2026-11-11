@@ -33,6 +33,7 @@ MUSIC_VOL = 0.224  # 0,2 aprovado no lote 1, +1 dB
 NAR_DELAY = 0.5
 HOOK_LEN = 3.0     # gancho visual: frase da thumbnail na tela nos 3 primeiros segundos
 POP_LEN = 1.8      # quanto tempo um número/data fica na tela
+SNAP = 1.2         # modo trecho: pula a imagem anterior se a próxima entra até SNAP s depois do início
 CLEAN_LEN = 65     # segundos da cópia sem textos usada pelos Shorts
 # Modo dinâmico (padrão): cada imagem vira várias tomadas (geral, closes) com corte
 # seco nas pausas da narração. Use --estatico para o estilo antigo, uma panorâmica por imagem.
@@ -301,7 +302,10 @@ def main(slug, window=None, win_out=None):
         first = None   # no modo trecho: início da 1ª imagem usada
         for i, (img, prompt, d, si) in enumerate(shots):
             n = int(round(d * FPS))
-            if window and not (t_start < window[1] and t_start + n / FPS > window[0]):
+            # No modo trecho, uma imagem que só aparece na transição do começo
+            # (ou até SNAP s antes da próxima) fica de fora: o Short não abre com
+            # a imagem anterior se dissolvendo no preto.
+            if window and not (t_start < window[1] and t_start + n / FPS - FADE > window[0] + SNAP):
                 t_start += n / FPS - FADE
                 continue
             if window and first is None:
@@ -387,11 +391,15 @@ def main(slug, window=None, win_out=None):
             # Trecho limpo: só os crossfades das imagens usadas, cortado no intervalo
             # pedido, com o áudio completo da mixagem recortado no mesmo ponto.
             t0, t1 = window[0] - first, window[1] - first
+            # se a janela começa antes da 1ª imagem usada, segura o 1º quadro dela
+            pad = f"tpad=start_duration={-t0:.3f}:start_mode=clone," if t0 < 0 else ""
+            if t0 < 0:
+                t0, t1 = 0.0, t1 - t0
             a_inputs, a_chain = audio_mix(audio, len(clips), total, [])
             a_chain = a_chain.replace("[aout]", "[amix]") + (
                 f";[amix]atrim={window[0]:.3f}:{window[1]:.3f},asetpts=PTS-STARTPTS[aw]")
             run(["ffmpeg", "-y", *inputs, *a_inputs, "-filter_complex",
-                 ";".join(xfades + [f"[{last}]trim={t0:.3f}:{t1:.3f},setpts=PTS-STARTPTS[vw]", a_chain]),
+                 ";".join(xfades + [f"[{last}]{pad}trim={t0:.3f}:{t1:.3f},setpts=PTS-STARTPTS[vw]", a_chain]),
                  "-map", "[vw]", "-map", "[aw]", "-c:v", "libx264", "-preset", "faster", "-crf", "20",
                  "-r", str(FPS), "-c:a", "aac", "-b:a", "192k", str(win_out)])
             shutil.rmtree(cache, ignore_errors=True)
