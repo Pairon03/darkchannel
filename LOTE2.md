@@ -1,6 +1,6 @@
 # Lote 2 — Ecos da História
 
-7 episódios novos, cada um com Short. Mesmo esquema do lote 1: **vídeo longo às 17h** (seg/qua/sex) e **Short no dia seguinte, às 12h** (horário de Brasília).
+7 episódios novos, cada um com 3 Shorts (21 no total). **Vídeo longo às 17h** (seg/qua/sex) e **1 Short por dia às 12h** (horário de Brasília), sempre depois do longo do mesmo tema.
 
 Em todos: **"Conteúdo alterado ou sintético: Sim"**, **"Não é conteúdo para crianças"**, categoria **Educação**. Depois que o vídeo for ao ar, publique o comentário fixado e clique em ⋮ → **Fixar**. No Short, toque em ⋮ → **Vincular vídeo** e escolha o episódio completo.
 
