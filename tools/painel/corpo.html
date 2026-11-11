@@ -1,0 +1,209 @@
+<div class="wrap">
+  <div class="brand">ECOS DA HISTÓRIA</div>
+  <h1>Painel de <span>postagens</span></h1>
+
+  <div class="top">
+    <div class="box">
+      <div class="stats">
+        <div class="stat"><div class="label">Vídeos longos postados</div><div class="n" id="nLong">–</div><div class="bar"><i id="bLong" style="width:0"></i></div><div class="sub" id="sLong"></div></div>
+        <div class="stat"><div class="label">Shorts postados</div><div class="n" id="nShort">–</div><div class="bar"><i id="bShort" style="width:0"></i></div><div class="sub" id="sShort"></div></div>
+      </div>
+      <div class="prod"><div><b>Em produção:</b> 18 · Astecas. O roteiro está pronto e a narração espera os créditos novos da ElevenLabs.</div></div>
+    </div>
+    <div class="box" id="nextBox">
+      <div class="label">Próximo a postar</div>
+      <div id="next" class="empty">Carregando…</div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <div class="seg" role="group" aria-label="Como mostrar">
+      <button id="vData" aria-pressed="true">Por data</button>
+      <button id="vEp" aria-pressed="false">Por episódio</button>
+    </div>
+    <div class="seg" role="group" aria-label="Situação">
+      <button data-st="falta" aria-pressed="true">Falta postar</button>
+      <button data-st="todos" aria-pressed="false">Todos</button>
+      <button data-st="postados" aria-pressed="false">Postados</button>
+    </div>
+    <div class="seg" role="group" aria-label="Tipo">
+      <button data-k="todos" aria-pressed="true">Longos e Shorts</button>
+      <button data-k="longo" aria-pressed="false">Longos</button>
+      <button data-k="short" aria-pressed="false">Shorts</button>
+    </div>
+    <div class="spacer"></div>
+    <div class="note" id="sync">Carregando marcações…</div>
+  </div>
+
+  <div id="list"></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const ITEMS = __ITEMS__;
+const EPN = {"01":"Coliseu","02":"Pompeia","03":"Termópilas","04":"Biblioteca de Alexandria","05":"Peste Negra","06":"Cleópatra","07":"Vikings","08":"Pirâmides","09":"Templários","10":"Fogo Grego","11":"Constantinopla","12":"Calígula","13":"Gengis Khan","14":"Joana d'Arc","15":"Exército de Terracota","16":"Titanic","17":"Átila"};
+const DOW = ["dom","seg","ter","qua","qui","sex","sáb"];
+const pad = n => String(n).padStart(2,"0");
+const now = new Date();
+const TODAY = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+const status = {};          // id -> {posted, at}
+let canWrite = true, dbRef = null;
+const ui = {view:"data", st:"falta", k:"todos"};
+try { const s = JSON.parse(localStorage.getItem("painel-ui")||"null"); if (s) Object.assign(ui, s); } catch(e) {}
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const d = iso => new Date(iso+"T12:00:00");
+const fmt = iso => { const x = d(iso); return `${DOW[x.getDay()]} ${pad(x.getDate())}/${pad(x.getMonth()+1)}`; };
+const posted = it => !!(status[it.id] && status[it.id].posted);
+const sortKey = it => it.date + (it.time==="12h"?"a":it.time==="17h"?"b":"c");
+
+function chip(it){
+  if (posted(it)) return `<span class="chip ok">Postado${status[it.id].at?" "+fmt(status[it.id].at).slice(4):""}</span>`;
+  if (it.date === TODAY) return `<span class="chip today">Postar hoje</span>`;
+  if (it.date < TODAY) return `<span class="chip late">Data passou</span>`;
+  return `<span class="chip soon">Agendar</span>`;
+}
+
+function card(it){
+  const v = it.kind === "short";
+  const p = posted(it);
+  return `<article class="card${p?" done":""}" data-id="${esc(it.id)}">
+    <div class="media${v?" v":""}" ${v?`style="--src:url('${it.img}')"`:""}>
+      <img src="${it.img}" alt="" loading="lazy">
+      <span class="kind${v?" short":""}">${v?"Short":"Vídeo longo"}</span>
+    </div>
+    <div class="body">
+      <div class="meta"><b>${fmt(it.date)} · ${it.time}</b>${chip(it)}</div>
+      <div class="title">${esc(it.title)}</div>
+      <details class="txt"><summary>Título e descrição para copiar</summary>
+        <pre>${esc(it.desc)}</pre>
+        <div class="btns"><button class="btn" data-copy="title">Copiar título</button><button class="btn" data-copy="desc">Copiar descrição</button></div>
+        <div class="file">${esc(it.file)}</div>
+      </details>
+      <div class="row"><button class="toggle" data-tg aria-pressed="${p}" ${canWrite?"":"disabled"}><span class="box2"></span>${p?"Postado":"Marcar como postado"}</button></div>
+    </div></article>`;
+}
+
+function visible(it){
+  if (ui.k !== "todos" && it.kind !== ui.k) return false;
+  if (ui.st === "falta" && posted(it)) return false;
+  if (ui.st === "postados" && !posted(it)) return false;
+  return true;
+}
+
+function weekStart(iso){ const x = d(iso); const off = (x.getDay()+6)%7; x.setDate(x.getDate()-off); return `${x.getFullYear()}-${pad(x.getMonth()+1)}-${pad(x.getDate())}`; }
+
+function renderList(){
+  const items = ITEMS.filter(visible);
+  let html = "";
+  if (!items.length){
+    html = `<p class="empty">${ui.st==="falta"?"Tudo postado por aqui. Quando o próximo lote ficar pronto, ele aparece nesta lista.":"Nenhum vídeo com esses filtros."}</p>`;
+  } else if (ui.view === "data"){
+    const groups = new Map();
+    for (const it of [...items].sort((a,b)=>sortKey(a)<sortKey(b)?-1:1)){
+      const w = weekStart(it.date);
+      if (!groups.has(w)) groups.set(w, []);
+      groups.get(w).push(it);
+    }
+    const thisWeek = weekStart(TODAY);
+    for (const [w, arr] of groups){
+      const end = d(w); end.setDate(end.getDate()+6);
+      const tag = w === thisWeek ? " · esta semana" : w < thisWeek ? " · semana passada ou antes" : "";
+      html += `<section class="group"><div class="ghead"><h2>Semana de ${fmt(w).slice(4)} a ${pad(end.getDate())}/${pad(end.getMonth()+1)}</h2><span class="c">${arr.length} ${arr.length===1?"vídeo":"vídeos"}${tag}</span></div><div class="grid">${arr.map(card).join("")}</div></section>`;
+    }
+  } else {
+    const eps = [...new Set(ITEMS.map(i=>i.ep))].sort();
+    for (const ep of eps){
+      const all = ITEMS.filter(i=>i.ep===ep);
+      const shown = all.filter(visible);
+      if (!shown.length) continue;
+      const long = shown.find(i=>i.kind==="longo");
+      const shorts = shown.filter(i=>i.kind==="short").sort((a,b)=>sortKey(a)<sortKey(b)?-1:1);
+      const done = all.filter(posted).length;
+      html += `<section class="group"><div class="ghead"><h2>${ep} · ${esc(EPN[ep]||ep)}</h2><span class="c">Lote ${all[0].lote} · ${done} de ${all.length} postados</span></div>
+        <div class="ep">${long?card(long):`<div></div>`}<div class="shorts">${shorts.map(card).join("")}</div></div></section>`;
+    }
+  }
+  $("list").innerHTML = html;
+}
+
+function renderTop(){
+  for (const k of ["longo","short"]){
+    const all = ITEMS.filter(i=>i.kind===k), n = all.filter(posted).length;
+    const late = all.filter(i=>!posted(i) && i.date < TODAY).length;
+    const id = k==="longo"?"Long":"Short";
+    $("n"+id).innerHTML = `${n}<small> / ${all.length}</small>`;
+    $("b"+id).style.width = (100*n/all.length)+"%";
+    $("s"+id).textContent = late ? `${late} com a data já passada e sem marcação` : `${all.length-n} para postar`;
+  }
+  const pend = ITEMS.filter(i=>!posted(i)).sort((a,b)=>sortKey(a)<sortKey(b)?-1:1);
+  const nxt = pend.find(i=>i.date >= TODAY) || pend[0];
+  if (!nxt){ $("next").innerHTML = `<p class="empty">Nada pendente. Tudo o que foi produzido já está no ar.</p>`; return; }
+  const v = nxt.kind==="short";
+  const when = nxt.date===TODAY ? "Hoje" : nxt.date<TODAY ? "Data passou" : fmt(nxt.date);
+  $("next").className = "";
+  $("next").innerHTML = `<div class="next" data-id="${esc(nxt.id)}"><div class="img${v?" v":""}"><img src="${nxt.img}" alt=""></div>
+    <div style="min-width:0"><div class="when">${when} · ${nxt.time} · ${v?"Short":"Vídeo longo"}</div><div class="t">${esc(nxt.title)}</div><div class="file">${esc(nxt.file)}</div>
+    <div class="btns"><button class="btn" data-copy="title">Copiar título</button><button class="btn" data-copy="desc">Copiar descrição</button><button class="btn primary" data-tg ${canWrite?"":"disabled"}>Marcar como postado</button></div></div></div>`;
+}
+
+function render(){ renderTop(); renderList(); syncButtons(); }
+
+function syncButtons(){
+  $("vData").setAttribute("aria-pressed", ui.view==="data");
+  $("vEp").setAttribute("aria-pressed", ui.view==="ep");
+  document.querySelectorAll("[data-st]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.st===ui.st));
+  document.querySelectorAll("[data-k]").forEach(b=>b.setAttribute("aria-pressed", b.dataset.k===ui.k));
+}
+function setUi(p){ Object.assign(ui,p); try{ localStorage.setItem("painel-ui", JSON.stringify(ui)); }catch(e){} render(); }
+$("vData").onclick = ()=>setUi({view:"data"});
+$("vEp").onclick = ()=>setUi({view:"ep"});
+document.querySelectorAll("[data-st]").forEach(b=>b.onclick=()=>setUi({st:b.dataset.st}));
+document.querySelectorAll("[data-k]").forEach(b=>b.onclick=()=>setUi({k:b.dataset.k}));
+
+let toastT;
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("on"),1800); }
+
+document.addEventListener("click", async e => {
+  const host = e.target.closest("[data-id]");
+  if (!host) return;
+  const it = ITEMS.find(i=>i.id===host.dataset.id);
+  const cp = e.target.closest("[data-copy]");
+  if (cp){
+    const text = cp.dataset.copy==="title" ? it.title : it.desc;
+    try { await navigator.clipboard.writeText(text); toast(cp.dataset.copy==="title"?"Título copiado":"Descrição copiada"); }
+    catch(err){ const pre = host.querySelector("pre"); if (pre){ const r=document.createRange(); r.selectNodeContents(pre); const s=getSelection(); s.removeAllRanges(); s.addRange(r);} toast("Selecione o texto e copie com Ctrl+C"); }
+    return;
+  }
+  if (e.target.closest("[data-tg]")){
+    if (!dbRef || !canWrite) return;
+    const prev = status[it.id];
+    const next = posted(it) ? {posted:false, at:null} : {posted:true, at:TODAY};
+    status[it.id] = next; render();
+    toast(next.posted ? "Marcado como postado" : "Marcação removida");
+    try { await dbRef.doc(it.id).set(next); }
+    catch(err){
+      if (prev) status[it.id] = prev; else delete status[it.id];
+      if (err && err.code === "invalid_argument"){ canWrite = false; $("sync").textContent = "Você pode ver o painel, mas não pode alterar as marcações."; $("sync").className="note bad"; }
+      else { $("sync").textContent = "Não deu para salvar. Tente de novo em instantes."; $("sync").className="note bad"; }
+      render();
+    }
+  }
+});
+
+render();
+
+(async () => {
+  const timer = setTimeout(()=>{ $("sync").textContent = "As marcações ainda não carregaram. Verifique a conexão."; $("sync").className="note bad"; }, 10000);
+  const db = window.claude ? await window.claude.use("db") : null;
+  if (!db){ clearTimeout(timer); canWrite=false; $("sync").textContent = "Abra o painel no claude.ai para salvar marcações."; $("sync").className="note bad"; render(); return; }
+  dbRef = db.collection("status");
+  dbRef.onSnapshot(snap => {
+    for (const k of Object.keys(status)) delete status[k];
+    snap.docs.forEach(doc => { status[doc.id] = doc.data(); });
+    if (!snap.metadata.fromCache){ clearTimeout(timer); $("sync").textContent = "Marcações salvas e sincronizadas"; $("sync").className="note"; }
+    render();
+  }, err => { clearTimeout(timer); $("sync").textContent = "As marcações não puderam ser carregadas agora."; $("sync").className="note bad"; });
+})();
+</script>
