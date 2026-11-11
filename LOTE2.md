@@ -12,29 +12,45 @@ Em todos: **"Conteúdo alterado ou sintético: Sim"**, **"Não é conteúdo para
 - **Roteiros mais longos** (~6:30 a 7:00 min, antes 4:30 a 5:30), o que ajuda no tempo de exibição.
 - **Shorts:** legenda palavra por palavra, com a palavra falada acesa em dourado, zoom de impacto no começo e barra de progresso vermelha.
 
-## Calendário
+## Calendário (atualizado em 11/11, depois do analisador)
 
-| Data | Episódio | Arquivo | Short (dia seguinte, 12h) |
-|---|---|---|---|
-| **Seg 09/11** | A Porta Esquecida que Derrubou um Império de Mil Anos | `11-constantinopla` | Ter 10/11 |
-| **Qua 11/11** | Titanic: Os 160 Minutos que Ninguém Te Contou | `16-titanic` | Qui 12/11 |
-| Sex 13/11 | *(Templários, do lote 1)* | | |
-| **Seg 16/11** | Calígula: O Imperador Louco ou a Maior Fake News de Roma? | `12-caligula` | Ter 17/11 |
-| **Qua 18/11** | Gengis Khan: O Conquistador que Mudou Até o Clima da Terra | `13-gengis-khan` | Qui 19/11 |
-| **Sex 20/11** | Joana d'Arc: A Camponesa de 17 Anos que Comandou um Exército | `14-joana-darc` | Sáb 21/11 |
-| **Seg 23/11** | 8.000 Soldados Enterrados: O Túmulo que a China Tem Medo de Abrir | `15-terracota` | Ter 24/11 |
-| **Qua 25/11** | Átila: O "Flagelo de Deus" que Morreu na Noite de Núpcias | `17-atila` | Qui 26/11 |
-| Sex 27/11 | *(reservado: Astecas, quando os créditos renovarem)* | `18-astecas` | |
+**Longos:** segunda, quarta e sexta, às 17h. **Shorts:** 1 por dia, às 12h, sempre depois do longo do mesmo tema (assim o "vídeo completo no canal" já existe e dá para vincular).
+
+| Data | Longo (17h) | Short do dia (12h) |
+|---|---|---|
+| Sex 13/11 | *(Templários, do lote 1)* | |
+| **Seg 16/11** | Constantinopla `11-constantinopla` | |
+| Ter 17/11 | | `11-constantinopla-short` |
+| **Qua 18/11** | Titanic `16-titanic` | `11-constantinopla-short2` |
+| Qui 19/11 | | `16-titanic-short` |
+| **Sex 20/11** | Calígula `12-caligula` | `11-constantinopla-short3` |
+| Sáb 21/11 | | `12-caligula-short` |
+| Dom 22/11 | | `16-titanic-short2` |
+| **Seg 23/11** | Gengis Khan `13-gengis-khan` | `12-caligula-short2` |
+| Ter 24/11 | | `13-gengis-khan-short` |
+| **Qua 25/11** | Joana d'Arc `14-joana-darc` | `16-titanic-short3` |
+| Qui 26/11 | | `14-joana-darc-short` |
+| **Sex 27/11** | Terracota `15-terracota` | `12-caligula-short3` |
+| Sáb 28/11 | | `15-terracota-short` |
+| Dom 29/11 | | `13-gengis-khan-short2` |
+| **Seg 30/11** | Átila `17-atila` | `14-joana-darc-short2` |
+| Ter 01/12 | | `17-atila-short` |
+| Qua 02/12 | | `15-terracota-short2` |
+| Qui 03/12 | | `13-gengis-khan-short3` |
+| Sex 04/12 | | `17-atila-short2` |
+| Sáb 05/12 | | `14-joana-darc-short3` |
+| Dom 06/12 | | `15-terracota-short3` |
+| Seg 07/12 | | `17-atila-short3` |
 
 Arquivos: `videos/<arquivo>.mp4`, `thumbnails/<arquivo>.jpg` e `shorts/<arquivo>-short.mp4`.
 
 ---
 
-## 1. Seg 09/11 — 11-constantinopla
+## 1. Seg 16/11 — 11-constantinopla
 
 **Título**
 ```
-A Porta Esquecida que Derrubou um Império de Mil Anos
+Uma Porta Aberta Derrubou Mil Anos de Império: Constantinopla, 1453
 ```
 
 **Descrição**
@@ -63,11 +79,11 @@ Fato extra: Constantinopla virou Istambul, e a Santa Sofia foi igreja, mesquita,
 
 ---
 
-## 2. Qua 11/11 — 16-titanic
+## 2. Qua 18/11 — 16-titanic
 
 **Título**
 ```
-Titanic: Os 160 Minutos que Ninguém Te Contou
+6 Avisos Ignorados: Os Últimos 160 Minutos do Titanic
 ```
 
 **Descrição**
@@ -96,11 +112,11 @@ Você entraria no primeiro bote, ou ficaria no navio "inafundável" como muitos 
 
 ---
 
-## 3. Seg 16/11 — 12-caligula
+## 3. Sex 20/11 — 12-caligula
 
 **Título**
 ```
-Calígula: O Imperador Louco ou a Maior Fake News de Roma?
+Ele Quis Fazer do Cavalo um Cônsul: Calígula Era Mesmo Louco?
 ```
 
 **Descrição**
@@ -129,11 +145,11 @@ calígula, roma antiga, imperador romano, império romano, incitatus, história,
 
 ---
 
-## 4. Qua 18/11 — 13-gengis-khan
+## 4. Seg 23/11 — 13-gengis-khan
 
 **Título**
 ```
-Gengis Khan: O Conquistador que Mudou Até o Clima da Terra
+16 Milhões de Homens Têm o DNA Dele: A História de Gengis Khan
 ```
 
 **Descrição**
@@ -162,11 +178,11 @@ Herói ou monstro? Na Mongólia ele está no dinheiro; em boa parte do mundo, é
 
 ---
 
-## 5. Sex 20/11 — 14-joana-darc
+## 5. Qua 25/11 — 14-joana-darc
 
 **Título**
 ```
-Joana d'Arc: A Camponesa de 17 Anos que Comandou um Exército
+Comandou um Exército aos 17, Queimada aos 19: Joana d'Arc
 ```
 
 **Descrição**
@@ -195,7 +211,7 @@ Você acha que ela realmente ouvia vozes? Fé, doença ou algo que a gente não 
 
 ---
 
-## 6. Seg 23/11 — 15-terracota
+## 6. Sex 27/11 — 15-terracota
 
 **Título**
 ```
@@ -226,11 +242,11 @@ exército de terracota, qin shi huang, china antiga, primeiro imperador, arqueol
 
 ---
 
-## 7. Qua 25/11 — 17-atila
+## 7. Seg 30/11 — 17-atila
 
 **Título**
 ```
-Átila: O "Flagelo de Deus" que Morreu na Noite de Núpcias
+Morreu na Noite de Núpcias: O Fim Misterioso de Átila, o Huno
 ```
 
 **Descrição**
@@ -259,11 +275,13 @@ Narração: voz gerada por IA (ElevenLabs). Imagens: ilustrações geradas por I
 
 ---
 
-# Shorts do lote 2
+# Shorts do lote 2 (21)
 
-Cada Short traz o gancho do episódio na vertical, com legenda palavra por palavra.
+Três por episódio: o gancho do começo e dois trechos fortes do meio, cada um com outro ângulo da história. Todos terminam com uma pergunta na tela e "COMENTE AQUI". Postar às **12h**, na ordem abaixo.
 
-## Ter 10/11, 12h — `shorts/11-constantinopla-short.mp4`
+Depois de publicar, toque em ⋮ → **Vincular vídeo** e escolha o episódio completo. **Não** use hashtags no título dos vídeos longos, só nos Shorts.
+
+## Ter 17/11, 12h — `shorts/11-constantinopla-short.mp4`
 
 **Título**
 ```
@@ -274,14 +292,32 @@ Cada Short traz o gancho do episódio na vertical, com legenda palavra por palav
 ```
 Em 29 de maio de 1453, a muralha mais poderosa do mundo caiu em poucas horas. E tudo pode ter começado com uma pequena porta deixada aberta.
 
-▶ Vídeo completo no canal: A Porta Esquecida que Derrubou um Império de Mil Anos
+▶ Vídeo completo no canal: Uma Porta Aberta Derrubou Mil Anos de Império: Constantinopla, 1453
 
 📜 Ecos da História: a história que os livros esquecem.
 
 #shorts #constantinopla #historia #imperiobizantino
 ```
 
-## Qui 12/11, 12h — `shorts/16-titanic-short.mp4`
+## Qua 18/11, 12h — `shorts/11-constantinopla-short2.mp4`
+
+**Título**
+```
+O império não pagou o engenheiro… e ele fez o canhão que o destruiu #shorts
+```
+
+**Descrição**
+```
+Orban ofereceu seus canhões gigantes a Constantinopla. O imperador não tinha dinheiro. O sultão tinha.
+
+▶ Vídeo completo no canal: Uma Porta Aberta Derrubou Mil Anos de Império: Constantinopla, 1453
+
+📜 Ecos da História: a história que os livros esquecem.
+
+#shorts #constantinopla #historia #imperiobizantino
+```
+
+## Qui 19/11, 12h — `shorts/16-titanic-short.mp4`
 
 **Título**
 ```
@@ -292,14 +328,32 @@ O Titanic levou 2h40 para afundar e quase tudo podia ser evitado #shorts
 ```
 Às 23h40 de 14 de abril de 1912, o vigia gritou: iceberg! 37 segundos depois, o maior navio do mundo raspou no gelo.
 
-▶ Vídeo completo no canal: Titanic: Os 160 Minutos que Ninguém Te Contou
+▶ Vídeo completo no canal: 6 Avisos Ignorados: Os Últimos 160 Minutos do Titanic
 
 📜 Ecos da História: a história que os livros esquecem.
 
 #shorts #titanic #historia #naufragio
 ```
 
-## Ter 17/11, 12h — `shorts/12-caligula-short.mp4`
+## Sex 20/11, 12h — `shorts/11-constantinopla-short3.mp4`
+
+**Título**
+```
+Eles arrastaram 70 navios por cima de um morro #shorts
+```
+
+**Descrição**
+```
+Uma corrente de ferro fechava o porto de Constantinopla. Então os otomanos levaram a frota por terra.
+
+▶ Vídeo completo no canal: Uma Porta Aberta Derrubou Mil Anos de Império: Constantinopla, 1453
+
+📜 Ecos da História: a história que os livros esquecem.
+
+#shorts #constantinopla #historia #imperiobizantino
+```
+
+## Sáb 21/11, 12h — `shorts/12-caligula-short.mp4`
 
 **Título**
 ```
@@ -310,14 +364,50 @@ O Titanic levou 2h40 para afundar e quase tudo podia ser evitado #shorts
 ```
 No dia 24 de janeiro do ano 41, a própria guarda de Calígula o esperava com punhais. Mas e se tudo o que você sabe sobre ele foi escrito pelos inimigos?
 
-▶ Vídeo completo no canal: Calígula: O Imperador Louco ou a Maior Fake News de Roma?
+▶ Vídeo completo no canal: Ele Quis Fazer do Cavalo um Cônsul: Calígula Era Mesmo Louco?
 
 📜 Ecos da História: a história que os livros esquecem.
 
 #shorts #caligula #romaantiga #imperioromano
 ```
 
-## Qui 19/11, 12h — `shorts/13-gengis-khan-short.mp4`
+## Dom 22/11, 12h — `shorts/16-titanic-short2.mp4`
+
+**Título**
+```
+Os binóculos do Titanic estavam trancados — e a chave ficou em terra #shorts
+```
+
+**Descrição**
+```
+Os vigias do Titanic procuraram o iceberg a olho nu, numa noite sem lua e sem ondas.
+
+▶ Vídeo completo no canal: 6 Avisos Ignorados: Os Últimos 160 Minutos do Titanic
+
+📜 Ecos da História: a história que os livros esquecem.
+
+#shorts #titanic #historia #naufragio
+```
+
+## Seg 23/11, 12h — `shorts/12-caligula-short2.mp4`
+
+**Título**
+```
+O imperador que queria um cavalo no Senado #shorts
+```
+
+**Descrição**
+```
+Incitatus tinha estábulo de mármore e manjedoura de marfim. Mas virou mesmo cônsul?
+
+▶ Vídeo completo no canal: Ele Quis Fazer do Cavalo um Cônsul: Calígula Era Mesmo Louco?
+
+📜 Ecos da História: a história que os livros esquecem.
+
+#shorts #caligula #romaantiga #imperioromano
+```
+
+## Ter 24/11, 12h — `shorts/13-gengis-khan-short.mp4`
 
 **Título**
 ```
@@ -328,14 +418,32 @@ No dia 24 de janeiro do ano 41, a própria guarda de Calígula o esperava com pu
 ```
 Um estudo genético encontrou a mesma linhagem em cerca de 16 milhões de homens, e ela pode ter vindo de um único conquistador.
 
-▶ Vídeo completo no canal: Gengis Khan: O Conquistador que Mudou Até o Clima da Terra
+▶ Vídeo completo no canal: 16 Milhões de Homens Têm o DNA Dele: A História de Gengis Khan
 
 📜 Ecos da História: a história que os livros esquecem.
 
 #shorts #genghiskhan #historia #mongois
 ```
 
-## Sáb 21/11, 12h — `shorts/14-joana-darc-short.mp4`
+## Qua 25/11, 12h — `shorts/16-titanic-short3.mp4`
+
+**Título**
+```
+Um navio viu o Titanic afundando… e não fez nada #shorts
+```
+
+**Descrição**
+```
+Foguetes de socorro no céu e um navio parado no horizonte. O rádio dele estava desligado.
+
+▶ Vídeo completo no canal: 6 Avisos Ignorados: Os Últimos 160 Minutos do Titanic
+
+📜 Ecos da História: a história que os livros esquecem.
+
+#shorts #titanic #historia #naufragio
+```
+
+## Qui 26/11, 12h — `shorts/14-joana-darc-short.mp4`
 
 **Título**
 ```
@@ -346,14 +454,32 @@ Ela comandou um exército aos 17 e foi queimada aos 19 #shorts
 ```
 Uma camponesa que não sabia ler comandou um exército, libertou uma cidade e coroou um rei. Dois anos depois, estava numa fogueira.
 
-▶ Vídeo completo no canal: Joana d'Arc: A Camponesa de 17 Anos que Comandou um Exército
+▶ Vídeo completo no canal: Comandou um Exército aos 17, Queimada aos 19: Joana d'Arc
 
 📜 Ecos da História: a história que os livros esquecem.
 
 #shorts #joanadarc #historia #idademedia
 ```
 
-## Ter 24/11, 12h — `shorts/15-terracota-short.mp4`
+## Sex 27/11, 12h — `shorts/12-caligula-short3.mp4`
+
+**Título**
+```
+Acharam o novo imperador escondido atrás de uma cortina #shorts
+```
+
+**Descrição**
+```
+Calígula tinha acabado de ser assassinado. Um soldado viu dois pés embaixo da cortina...
+
+▶ Vídeo completo no canal: Ele Quis Fazer do Cavalo um Cônsul: Calígula Era Mesmo Louco?
+
+📜 Ecos da História: a história que os livros esquecem.
+
+#shorts #caligula #romaantiga #imperioromano
+```
+
+## Sáb 28/11, 12h — `shorts/15-terracota-short.mp4`
 
 **Título**
 ```
@@ -362,7 +488,7 @@ Eles cavavam um poço e acharam um exército de 8.000 soldados #shorts
 
 **Descrição**
 ```
-Em 1974, camponeses chineses encontraram uma cabeça de barro. Era a maior descoberta arqueológica do século XX, guardando um túmulo que ninguém teve coragem de abrir.
+Em 1974, camponeses chineses encontraram uma cabeça de barro. Era a maior descoberta arqueológica do século XX.
 
 ▶ Vídeo completo no canal: 8.000 Soldados Enterrados: O Túmulo que a China Tem Medo de Abrir
 
@@ -371,7 +497,43 @@ Em 1974, camponeses chineses encontraram uma cabeça de barro. Era a maior desco
 #shorts #exercitodeterracota #china #arqueologia
 ```
 
-## Qui 26/11, 12h — `shorts/17-atila-short.mp4`
+## Dom 29/11, 12h — `shorts/13-gengis-khan-short2.mp4`
+
+**Título**
+```
+Mataram quem visse o enterro: o túmulo perdido de Gengis Khan #shorts
+```
+
+**Descrição**
+```
+Quase 800 anos depois, com satélites e expedições, ninguém encontrou o túmulo do Khan.
+
+▶ Vídeo completo no canal: 16 Milhões de Homens Têm o DNA Dele: A História de Gengis Khan
+
+📜 Ecos da História: a história que os livros esquecem.
+
+#shorts #genghiskhan #historia #mongois
+```
+
+## Seg 30/11, 12h — `shorts/14-joana-darc-short2.mp4`
+
+**Título**
+```
+A resposta que calou os juízes de Joana d'Arc #shorts
+```
+
+**Descrição**
+```
+Uma jovem analfabeta, sem advogado, contra dezenas de juristas. E uma pergunta que era uma armadilha.
+
+▶ Vídeo completo no canal: Comandou um Exército aos 17, Queimada aos 19: Joana d'Arc
+
+📜 Ecos da História: a história que os livros esquecem.
+
+#shorts #joanadarc #historia #idademedia
+```
+
+## Ter 01/12, 12h — `shorts/17-atila-short.mp4`
 
 **Título**
 ```
@@ -382,7 +544,115 @@ O homem mais temido da Europa morreu na noite do casamento #shorts
 ```
 Nenhum exército conseguiu parar Átila, o Flagelo de Deus. Mas na manhã seguinte ao casamento, ele foi encontrado morto na cama.
 
-▶ Vídeo completo no canal: Átila: O "Flagelo de Deus" que Morreu na Noite de Núpcias
+▶ Vídeo completo no canal: Morreu na Noite de Núpcias: O Fim Misterioso de Átila, o Huno
+
+📜 Ecos da História: a história que os livros esquecem.
+
+#shorts #atila #hunos #historia
+```
+
+## Qua 02/12, 12h — `shorts/15-terracota-short2.mp4`
+
+**Título**
+```
+O Exército de Terracota era colorido — e a cor sumiu em minutos #shorts
+```
+
+**Descrição**
+```
+Vermelho, verde, roxo e azul. Em contato com o ar, a pintura descascou diante dos arqueólogos.
+
+▶ Vídeo completo no canal: 8.000 Soldados Enterrados: O Túmulo que a China Tem Medo de Abrir
+
+📜 Ecos da História: a história que os livros esquecem.
+
+#shorts #exercitodeterracota #china #arqueologia
+```
+
+## Qui 03/12, 12h — `shorts/13-gengis-khan-short3.mp4`
+
+**Título**
+```
+As guerras de Gengis Khan esfriaram o planeta? #shorts
+```
+
+**Descrição**
+```
+Um estudo de 2011 calculou que as florestas que cresceram depois das conquistas tiraram 700 milhões de toneladas de carbono do ar.
+
+▶ Vídeo completo no canal: 16 Milhões de Homens Têm o DNA Dele: A História de Gengis Khan
+
+📜 Ecos da História: a história que os livros esquecem.
+
+#shorts #genghiskhan #historia #mongois
+```
+
+## Sex 04/12, 12h — `shorts/17-atila-short2.mp4`
+
+**Título**
+```
+Veneza nasceu de gente fugindo de Átila #shorts
+```
+
+**Descrição**
+```
+Os moradores do norte da Itália fugiram para as lagoas, onde os cavalos dos hunos não chegavam.
+
+▶ Vídeo completo no canal: Morreu na Noite de Núpcias: O Fim Misterioso de Átila, o Huno
+
+📜 Ecos da História: a história que os livros esquecem.
+
+#shorts #atila #hunos #historia
+```
+
+## Sáb 05/12, 12h — `shorts/14-joana-darc-short3.mp4`
+
+**Título**
+```
+As relíquias de Joana d'Arc eram restos de uma múmia egípcia #shorts
+```
+
+**Descrição**
+```
+Por séculos, um pote com supostos restos da fogueira foi guardado como relíquia. Em 2007, a ciência analisou.
+
+▶ Vídeo completo no canal: Comandou um Exército aos 17, Queimada aos 19: Joana d'Arc
+
+📜 Ecos da História: a história que os livros esquecem.
+
+#shorts #joanadarc #historia #idademedia
+```
+
+## Dom 06/12, 12h — `shorts/15-terracota-short3.mp4`
+
+**Título**
+```
+Rios de mercúrio dentro do túmulo do primeiro imperador da China #shorts
+```
+
+**Descrição**
+```
+Cientistas mediram o solo do monte que cobre o túmulo. E encontraram mercúrio muito acima do normal.
+
+▶ Vídeo completo no canal: 8.000 Soldados Enterrados: O Túmulo que a China Tem Medo de Abrir
+
+📜 Ecos da História: a história que os livros esquecem.
+
+#shorts #exercitodeterracota #china #arqueologia
+```
+
+## Seg 07/12, 12h — `shorts/17-atila-short3.mp4`
+
+**Título**
+```
+O papa saiu ao encontro de Átila… e ele deu meia-volta #shorts
+```
+
+**Descrição**
+```
+Roma estava indefesa. O papa Leão foi até o rio Mincio. Ninguém sabe o que foi dito.
+
+▶ Vídeo completo no canal: Morreu na Noite de Núpcias: O Fim Misterioso de Átila, o Huno
 
 📜 Ecos da História: a história que os livros esquecem.
 

@@ -191,42 +191,106 @@ def clean_or_full(slug):
     return clean if clean.exists() else ROOT / "videos" / f"{slug}.mp4"
 
 
-def main(slug, title, src=None):
+def phrases_of(text):
+    return [p.strip() for p in re.split(r"(?<=[.,?!:])\s+", text) if p.strip()]
+
+
+def wrap(text, width):
+    lines, cur = [], ""
+    for w in text.split():
+        if cur and len(cur) + len(w) + 1 > width:
+            lines.append(cur)
+            cur = w
+        else:
+            cur = (cur + " " + w).strip()
+    return lines + [cur]
+
+
+def main(slug, title, src=None, cena=None, pergunta=None, sufixo=""):
+    """Short do gancho (cena 1) ou, com cena=N, de um trecho do meio do vídeo.
+
+    pergunta: texto mostrado nos últimos segundos, sobre a imagem congelada,
+    para puxar comentários.
+    """
     md = (ROOT / "roteiros" / f"{slug}.md").read_text()
     sc = scenes(md)
     audio = ROOT / "audio" / f"{slug}.mp3"
-    full = " ".join(sc)
-    pz = pauses(audio)
-    all_phr = [p.strip() for p in re.split(r"(?<=[.,?!:])\s+", full) if p.strip()]
-    timed = align(all_phr, len(full.replace(" ", "")) + len(all_phr), duration(audio), pz)
+    timed = align_dp(phrases_of(" ".join(sc)), duration(audio), pauses(audio))
+    counts = [len(phrases_of(t)) for t in sc]
 
-    # Fim do gancho: fim da cena 1 (ou da cena 2, se a 1 for curta demais).
-    def scene_end(k):
-        n = len([p for p in re.split(r"(?<=[.,?!:])\s+", " ".join(sc[:k])) if p.strip()])
-        return timed[n - 1][1], n
-    end, n = scene_end(1)
-    if end < MIN_LEN and scene_end(2)[0] <= MAX_LEN:
-        end, n = scene_end(2)
-    if end > MAX_LEN:  # corta na última frase completa antes de 58 s
-        n = max(i for i, (_, b, p) in enumerate(timed) if b <= MAX_LEN and p[-1] in ".?!") + 1
-        end = timed[n - 1][1]
-    timed = timed[:n]
-    total = end + DELAY + 1.2
+    if cena:
+        # trecho = a cena inteira, cortado na última frase completa até MAX_LEN
+        k = int(cena) - 1
+        i0 = sum(counts[:k])
+        i1 = i0 + counts[k]
+        seg = timed[i0:i1]
+        # pula conectivos curtos no começo ("E tem mais.", "Agora,") que não servem de gancho
+        while len(seg) > 3 and len(seg[0][2]) < 16:
+            seg = seg[1:]
+        t_first = seg[0][0]
+        while len(seg) > 1 and (seg[-1][1] - t_first > MAX_LEN - 3 or seg[-1][2][-1] not in ".?!"):
+            seg = seg[:-1]
+        timed = [(a - t_first, b - t_first, p) for a, b, p in seg]
+        win = (t_first + DELAY - 0.15, seg[-1][1] + DELAY + 0.2)
+    else:
+        # gancho: fim da cena 1 (ou da 2, se a 1 for curta demais)
+        def scene_end(kk):
+            n = sum(counts[:kk])
+            return timed[n - 1][1], n
+        end, n = scene_end(1)
+        if end < MIN_LEN and scene_end(2)[0] <= MAX_LEN:
+            end, n = scene_end(2)
+        if end > MAX_LEN:
+            n = max(i for i, (_, b, p) in enumerate(timed) if b <= MAX_LEN and p[-1] in ".?!") + 1
+            end = timed[n - 1][1]
+        timed = timed[:n]
+        win = None
 
-    out = ROOT / "shorts" / f"{slug}-short.mp4"
+    hold = 2.8 if pergunta else 1.2  # segundos finais (imagem congelada se houver pergunta)
+    speech_end = timed[-1][1] + DELAY + (0.2 if cena else 0)
+    if cena:
+        total = (win[1] - win[0]) + hold
+        offset = 0.15  # o trecho começa 0,15 s antes da 1ª palavra
+    else:
+        total = speech_end + hold
+        offset = DELAY
+
+    out = ROOT / "shorts" / f"{slug}-short{sufixo}.mp4"
     out.parent.mkdir(exist_ok=True)
     l1, l2 = (title.split("|") + [""])[:2]
     anton, cinzel = FONT_DIR / "Anton-Regular.ttf", FONT_DIR / "Cinzel-Bold.ttf"
     with tempfile.TemporaryDirectory() as tmp:
+        if cena:
+            sys.path.insert(0, str(ROOT / "tools"))
+            import render
+            src = Path(tmp) / "trecho.mp4"
+            render.main(slug, window=win, win_out=src)
         ass = Path(tmp) / "cap.ass"
-        build_ass(timed, ass)
+        build_ass([(a + offset - DELAY, b + offset - DELAY, p) for a, b, p in timed], ass)
+        q = []
+        if pergunta:
+            qf = Path(tmp) / "q.txt"
+            qf.write_text("\n".join(wrap(pergunta.upper(), 22)))
+            cf = Path(tmp) / "c.txt"
+            cf.write_text("COMENTE AQUI")
+            qs = total - hold + 0.1
+            q = [f"drawbox=x=0:y=400:w=iw:h=1000:color=black@0.62:t=fill:enable='gte(t,{qs:.2f})'",
+                 f"drawtext=fontfile={anton}:textfile={qf}:fontsize=84:fontcolor=white:line_spacing=14:"
+                 f"x=(w-text_w)/2:y=900-text_h/2-40:enable='gte(t,{qs:.2f})'",
+                 f"drawtext=fontfile={anton}:textfile={cf}:fontsize=56:fontcolor=white:box=1:"
+                 f"boxcolor=0xC81616:boxborderw=16:x=(w-text_w)/2:y=1230:enable='gte(t,{qs + 0.3:.2f})'"]
+        # fonte: congela o último quadro durante a pergunta; áudio some ao fim da fala
+        clip_len = total - hold
+        vsrc = (f"[0:v]trim=0:{clip_len:.2f},setpts=PTS-STARTPTS,"
+                f"tpad=stop_mode=clone:stop_duration={hold:.2f},split=2[a][b];")
+        asrc = (f"[0:a]atrim=0:{clip_len:.2f},asetpts=PTS-STARTPTS,"
+                f"afade=t=out:st={clip_len - 0.25:.2f}:d=0.25,apad=whole_dur={total:.2f}[aout]")
         vf = (
-            "[0:v]split=2[a][b];"
+            vsrc +
             "[a]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,"
             "boxblur=28:2,eq=brightness=-0.22:saturation=0.8[bg];"
             # zoom de impacto nos primeiros 0,6 s (1,18x -> 1x)
-            # mostra só os 78% de cima do quadro: o texto de tela do vídeo longo fica
-            # no rodapé (y > 80%) e apareceria cortado na vertical
+            # mostra só os 78% de cima do quadro (o rodapé do vídeo longo pode ter texto)
             "[b]scale=-2:1282,crop=1080:1000:(iw-1080)/2:0,"
             "scale=w='trunc(1080*(1+0.18*max(0\\,1-t/0.6))/2)*2':h=-2:eval=frame,crop=1080:1000[fg];"
             f"color=c=0xC81616:s=1080x10:r=30:d={total:.2f}[bar];"
@@ -241,17 +305,26 @@ def main(slug, title, src=None):
             "x=(w-text_w)/2:y=1740,"
             f"drawtext=fontfile={cinzel}:text='ASSISTA O VÍDEO COMPLETO NO CANAL':fontsize=32:fontcolor=white@0.85:"
             "x=(w-text_w)/2:y=1800,"
-            f"subtitles={ass}:fontsdir={FONT_DIR},"
-            f"fade=t=out:st={total - 0.8:.2f}:d=0.8[v];"
-            f"[0:a]afade=t=out:st={total - 1.2:.2f}:d=1.2[aout]"
+            f"subtitles={ass}:fontsdir={FONT_DIR}"
+            + "".join("," + f for f in q) +
+            f",fade=t=out:st={total - 0.4:.2f}:d=0.4[v];" + asrc
         )
-        subprocess.run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error", "-t", f"{total:.2f}",
+        subprocess.run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "error",
                         "-i", str(src or clean_or_full(slug)), "-filter_complex", vf,
-                        "-map", "[v]", "-map", "[aout]", "-c:v", "libx264", "-preset", "medium",
-                        "-crf", "21", "-r", "30", "-c:a", "aac", "-b:a", "192k",
+                        "-map", "[v]", "-map", "[aout]", "-t", f"{total:.2f}", "-c:v", "libx264",
+                        "-preset", "medium", "-crf", "21", "-r", "30", "-c:a", "aac", "-b:a", "192k",
                         "-movflags", "+faststart", str(out)], check=True)
     print(f"pronto: {out} ({total:.1f}s)")
 
 
 if __name__ == "__main__":
-    main(*sys.argv[1:4])
+    # python3 tools/short.py <slug> "L1|L2" [--cena N] [--pergunta "..."] [--sufixo 2]
+    args, opts = [], {}
+    it = iter(sys.argv[1:])
+    for a in it:
+        if a.startswith("--"):
+            opts[a[2:]] = next(it)
+        else:
+            args.append(a)
+    main(args[0], args[1], cena=opts.get("cena"), pergunta=opts.get("pergunta"),
+         sufixo=opts.get("sufixo", ""))

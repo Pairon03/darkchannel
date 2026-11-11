@@ -262,7 +262,9 @@ def number_pops(timed, avoid, gap=6.0):
     return pops
 
 
-def main(slug):
+def main(slug, window=None, win_out=None):
+    """Renderiza o vídeo inteiro ou, com window=(t0, t1), só esse trecho, sem textos
+    na tela (para os Shorts), reaproveitando o mesmo plano de tomadas do vídeo longo."""
     num = slug.split("-")[0]
     md = (ROOT / "roteiros" / f"{slug}.md").read_text()
     scenes = parse_scenes(md)
@@ -296,8 +298,14 @@ def main(slug):
     with tempfile.TemporaryDirectory() as tmp:
         clips = []
         t_start = 0.0  # início da imagem na linha do tempo final
+        first = None   # no modo trecho: início da 1ª imagem usada
         for i, (img, prompt, d, si) in enumerate(shots):
             n = int(round(d * FPS))
+            if window and not (t_start < window[1] and t_start + n / FPS > window[0]):
+                t_start += n / FPS - FADE
+                continue
+            if window and first is None:
+                first = t_start
             # As tomadas ficam em videos/.tmp-<slug> até o fim: se a etapa final
             # falhar, rodar de novo reaproveita o que já foi renderizado.
             clip = cache / f"c{i:02d}.mp4"
@@ -374,6 +382,21 @@ def main(slug):
                          *caption_filters(captions, tmp), *extra])
         xfades = list(chain)
         chain.append(f"[{last}]{post}[vout]")
+
+        if window:
+            # Trecho limpo: só os crossfades das imagens usadas, cortado no intervalo
+            # pedido, com o áudio completo da mixagem recortado no mesmo ponto.
+            t0, t1 = window[0] - first, window[1] - first
+            a_inputs, a_chain = audio_mix(audio, len(clips), total, [])
+            a_chain = a_chain.replace("[aout]", "[amix]") + (
+                f";[amix]atrim={window[0]:.3f}:{window[1]:.3f},asetpts=PTS-STARTPTS[aw]")
+            run(["ffmpeg", "-y", *inputs, *a_inputs, "-filter_complex",
+                 ";".join(xfades + [f"[{last}]trim={t0:.3f}:{t1:.3f},setpts=PTS-STARTPTS[vw]", a_chain]),
+                 "-map", "[vw]", "-map", "[aw]", "-c:v", "libx264", "-preset", "faster", "-crf", "20",
+                 "-r", str(FPS), "-c:a", "aac", "-b:a", "192k", str(win_out)])
+            shutil.rmtree(cache, ignore_errors=True)
+            print(f"trecho pronto: {win_out}")
+            return
 
         # Efeitos sonoros: impacto na abertura, whoosh em cada troca de cena,
         # tensão subindo antes do clímax (cena 8).
